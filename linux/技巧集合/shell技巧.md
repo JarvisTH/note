@@ -1,3 +1,14 @@
+---
+title: shell技巧
+comments: true
+category: [linux, 技巧]
+keywords: [shell]
+date: 2021-10-09 21:30:40
+update: 2021-10-09 21:30:40
+description: shell技巧
+tags: [shell,linux]
+---
+
 ## 1.[[命令的 =~ 操作符判断字符串的包含关系
 
 [[ 命令的 =～ 操作符来判断某个字符串是否包含特定模式。使用 =~ 操作符时，其右边的字符串被认为是一个扩展正则表达式。

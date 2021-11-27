@@ -1,3 +1,14 @@
+---
+title:   GDB基本使用
+comments: true
+category: [linux, coredump]
+keywords: [c++,gdb]
+date: 2021-10-13 21:30:40
+update: 2021-10-13 21:30:40
+description:   GDB基本使用
+tags: [c++,gdb]
+---
+
 # GDB基本使用
 
 GDB调试的三种方式：

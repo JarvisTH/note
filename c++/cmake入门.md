@@ -1,3 +1,15 @@
+---
+title: cmake入门
+comments: true
+category: [c++, cmake]
+keywords: [cmake]
+date: 2021-10-07 21:30:40
+update: 2021-10-07 21:30:40
+description: cmake
+tags: cmake
+
+---
+
 ## 一、什么是cmake
 
 - 允许开发者编写一种平台无关的 CMakeList.txt 文件来定制整个编译流程
@@ -5,6 +17,8 @@
 - CMake 是一个比 make 更高级的编译配置工具。
 
 ## 二、单个文件DEMO
+
+<!--more-->
 
 单个文件xxx在目录xxx下，编写 CMakeLists.txt 文件，并保存在与 该 源文件同个目录下：
 
@@ -427,5 +441,6 @@ include (CPack)
 
 1. [超详细的cmake教程][https://blog.csdn.net/zhuiyunzhugang/article/details/88142908]
 
-[https://blog.csdn.net/zhuiyunzhugang/article/details/88142908]:
+[https://blog.csdn.net/zhuiyunzhugang/article/details/88142908]
 
+---

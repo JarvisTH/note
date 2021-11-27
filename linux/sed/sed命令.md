@@ -1,3 +1,14 @@
+---
+title:   sed 命令
+comments: true
+category: [linux, sed]
+keywords: [shell,linux]
+date: 2021-10-14 21:30:40
+update: 2021-10-14 21:30:40
+description:   sed 命令
+tags: [shell,linux]
+---
+
 # 1.sed 命令
 
 ## 一、sed

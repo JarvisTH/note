@@ -1,3 +1,16 @@
+---
+title: 命令nl
+comments: true
+category: [linux, shell]
+keywords: [shell]
+date: 2021-10-11 21:30:40
+update: 2021-10-11 21:30:40
+description: 命令nl
+tags: [shell,linux]
+---
+
+
+
 命令：nl
 
 显示行号

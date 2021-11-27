@@ -1,3 +1,14 @@
+---
+title:  awk命令
+comments: true
+category: [linux, awk]
+keywords: [shell]
+date: 2021-10-12 21:30:40
+update: 2021-10-12 21:30:40
+description:  awk命令
+tags: [shell,linux]
+---
+
 # awk命令
 
 ## 1.awk命令

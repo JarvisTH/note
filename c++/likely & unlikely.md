@@ -1,3 +1,16 @@
+---
+title:   likely与unlikely
+comments: true
+category: [c++, like]
+keywords: [c++, likely, unlikely]
+date: 2021-10-16 21:30:40
+update: 2021-10-16 21:30:40
+description:   likely与unlikely
+tags: [c++, likely,unlikely]
+---
+
+
+
 # likely与unlikely
 
 在c++程序中，可能会遇见likely、unlikely语句，这个也是第一次接触，所以去查了下资料。

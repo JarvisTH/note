@@ -1,3 +1,14 @@
+---
+title:  const关键字总结
+comments: true
+category: [c++, const]
+keywords: [c++,const]
+date: 2021-10-16 21:30:40
+update: 2021-10-16 21:30:40
+description:  const关键字总结
+tags: [c++,const]
+---
+
 # const关键字总结
 
 **const** 是**constant**的缩写，本意是**不变的，不易改变**的意思。
