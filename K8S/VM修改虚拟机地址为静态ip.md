@@ -20,7 +20,7 @@
 
 ping宿主机ip（192.168.2.168）、宿主机VM8  IP（192.168.6.1）、宿主机与虚拟机之前的网关IP（192.168.6.2）、ping外网（baidu.com）都可以通则说明虚拟机固定IP设置成功。
 
-vi /etc/sysconfig/network-scripts/ifcfg-ens33 为：
+vi /etc/sysconfig/network-scripts/ifcfg-ens33 为：00:0C:29:E7:31:6D
 
 >
 >
@@ -35,3 +35,4 @@ vi /etc/sysconfig/network-scripts/ifcfg-ens33 为：
 ## 五、重启虚拟机
 
 验证IP是否固定不变
+
