@@ -1481,7 +1481,7 @@ listen admin_stats
     stats refresh 30s
     stats uri /status
     stats realm welcome login\ Haproxy
-    stats auth admin:123456
+    stats auth kubernetes.confadmin:123456
     stats hide-version
     stats admin if TRUE
 listen kube-master
@@ -1903,7 +1903,7 @@ ExecStart=/opt/k8s/bin/kube-apiserver \\
   --insecure-port=0 \\
   --authorization-mode=Node,RBAC \\
   --runtime-config=api/all \\
-  --enable-bootstrap-token-auth \\
+  --enable-bootstrap-token-auth=true \\
   --service-cluster-ip-range=${SERVICE_CIDR} \\
   --service-node-port-range=${NODE_PORT_RANGE} \\
   --tls-cert-file=/etc/kubernetes/cert/kubernetes.pem \\
@@ -2871,3 +2871,295 @@ chmod +x magic56_ckeck.sh
 ```
 
 确认各 work 节点的 docker0 网桥和 flannel.1 接口的 IP 处于同一个网段中。
+
+## 十三、部署kubelet
+
+kublet 运行在每个 worker 节点上，接收 kube-apiserver 发送的请求，管理 Pod 容器，执行交互式命令，如 exec、run、logs 等。kublet 启动时自动向 kube-apiserver 注册节点信息，内置的 cadvisor 统计和监控节点的资源使用情况。
+
+为确保安全，本文档只开启接收 https 请求的安全端口，对请求进行认证和授权，拒绝未授权的访问 (如 apiserver、heapster)。下载分发，在部署 master 节点时已经做过，依赖包也在 work 节点当中安装过。
+
+
+
+### 1.创建kubelet bootstrap kubeconfig文件
+
+```
+cd
+
+cat > magic57_create_kubeconfig_file.sh << "EOF"
+#!/bin/bash
+# 创建 kubelet bootstrap kubeconfig 文件
+source /opt/k8s/bin/environment.sh
+for node_name in ${NODE_NAMES[@]}
+do
+    echo ">>> ${node_name}"
+    # 创建 token，由于使用create我的环境一直报错无法创建，所以使用generate
+    export BOOTSTRAP_TOKEN=$(kubeadm token generate \
+      --kubeconfig /home/k8s/.kube/config)
+    # 设置集群参数
+    kubectl config set-cluster kubernetes \
+      --certificate-authority=/etc/kubernetes/cert/ca.pem \
+      --embed-certs=true \
+      --server=${KUBE_APISERVER} \
+      --kubeconfig=/etc/kubernetes/kubelet-bootstrap-${node_name}.kubeconfig
+    # 设置客户端认证参数
+    kubectl config set-credentials kubelet-bootstrap \
+      --token=${BOOTSTRAP_TOKEN} \
+      --kubeconfig=/etc/kubernetes/kubelet-bootstrap-${node_name}.kubeconfig
+    # 设置上下文参数
+    kubectl config set-context default \
+      --cluster=kubernetes \
+      --user=kubelet-bootstrap \
+      --kubeconfig=/etc/kubernetes/kubelet-bootstrap-${node_name}.kubeconfig
+    # 设置默认上下文
+    kubectl config use-context default --kubeconfig=/etc/kubernetes/kubelet-bootstrap-${node_name}.kubeconfig
+done
+EOF
+
+chmod +x magic57_create_kubeconfig_file.sh
+./magic57_create_kubeconfig_file.sh
+```
+
+- 证书中写入 Token 而非证书，证书后续由 controller-manager 创建.
+
+查看 kubeadm 为各节点创建的 token：
+
+```
+kubeadm token list --kubeconfig /home/k8s/.kube/config
+```
+
+- 创建的 token 有效期为 1 天，超期后将不能再被使用，且会被 kube-controller-manager 的 tokencleaner 清理 (如果启用该 controller 的话)；
+- kube-apiserver 接收 kubelet 的 bootstrap token 后，将请求的 user 设置为 system:bootstrap:，group 设置为 system:bootstrappers；
+
+各 token 关联的 Secret：
+
+```
+kubectl get secrets  -n kube-system
+```
+
+### 2.分发bootstrap kubeconfig文件到所有worker节点
+
+```
+cd
+
+cat > magic58_distribute_kubeconfig_file.sh << "EOF"
+#!/bin/bash
+# 分发 bootstrap kubeconfig 文件到所有 worker 节点
+source /opt/k8s/bin/environment.sh
+for node_name in ${NODE_NAMES[@]}
+do
+    echo ">>> ${node_name}" 
+    scp /etc/kubernetes/kubelet-bootstrap-${node_name}.kubeconfig k8s@${node_name}:/etc/kubernetes/kubelet-bootstrap.kubeconfig
+done
+EOF
+
+chmod +x magic58_distribute_kubeconfig_file.sh
+./magic58_distribute_kubeconfig_file.sh
+```
+
+### 3.创建和分发kubelet参数配置文件
+
+创建 kubelet 参数配置模板文件：
+
+```
+source /opt/k8s/bin/environment.sh
+
+cat > /data/template/kubelet.config.json.template <<EOF
+{
+  "kind": "KubeletConfiguration",
+  "apiVersion": "kubelet.config.k8s.io/v1beta1",
+  "authentication": {
+    "x509": {
+      "clientCAFile": "/etc/kubernetes/cert/ca.pem"
+    },
+    "webhook": {
+      "enabled": true,
+      "cacheTTL": "2m0s"
+    },
+    "anonymous": {
+      "enabled": false
+    }
+  },
+  "authorization": {
+    "mode": "Webhook",
+    "webhook": {
+      "cacheAuthorizedTTL": "5m0s",
+      "cacheUnauthorizedTTL": "30s"
+    }
+  },
+  "address": "##NODE_IP##",
+  "port": 10250,
+  "readOnlyPort": 0,
+  "cgroupDriver": "cgroupfs",
+  "hairpinMode": "promiscuous-bridge",
+  "serializeImagePulls": false,
+  "featureGates": {
+    "RotateKubeletClientCertificate": true,
+    "RotateKubeletServerCertificate": true
+  },
+  "clusterDomain": "${CLUSTER_DNS_DOMAIN}",
+  "clusterDNS": ["${CLUSTER_DNS_SVC_IP}"]
+}
+EOF
+```
+
+- address：API 监听地址，不能为 127.0.0.1，否则 kube-apiserver、heapster 等不能调用 kubelet 的 API；
+- readOnlyPort=0：关闭只读端口 (默认 10255)，等效为未指定；
+- authentication.anonymous.enabled：设置为 false，不允许匿名访问 10250 端口；
+- authentication.x509.clientCAFile：指定签名客户端证书的 CA 证书，开启 HTTP 证书认证；
+- authentication.webhook.enabled=true：开启 HTTPs bearer token 认证；
+- 对于未通过 x509 证书和 webhook 认证的请求 (kube-apiserver 或其他客户端)，将被拒绝，提示 Unauthorized；
+- authroization.mode=Webhook：kubelet 使用 SubjectAccessReview API 查询 kube-apiserver 某 user、group 是否具有操作资源的权限 (RBAC)；
+- featureGates.RotateKubeletClientCertificate、featureGates.RotateKubeletServerCertificate：自动 rotate 证书，证书的有效期取决于 kube-controller-manager 的 –experimental-cluster-signing-duration 参数；
+- 需要 root 账户运行；
+
+为各节点创建和分发 kubelet 配置文件：
+
+```
+cd
+
+cat > magic59_createNode_distribute_file.sh << "EOF"
+#!/bin/bash
+# 为各节点创建和分发 kubelet 配置文件
+source /opt/k8s/bin/environment.sh
+for node_ip in ${NODE_IPS[@]}
+do
+    echo ">>> ${node_ip}" 
+    sed -e "s/##NODE_IP##/${node_ip}/" /data/template/kubelet.config.json.template > /data/template/kubelet.config-${node_ip}.json
+    scp /data/template/kubelet.config-${node_ip}.json root@${node_ip}:/etc/kubernetes/kubelet.config.json
+done
+EOF
+
+chmod +x magic59_createNode_distribute_file.sh
+./magic59_createNode_distribute_file.sh
+```
+
+### 4.创建和分发kubelet systemd unit文件
+
+创建 kubelet systemd unit 文件模板：
+
+```
+cat > /data/template/kubelet.service.template <<EOF
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=docker.service
+Requires=docker.service
+[Service]
+WorkingDirectory=/var/lib/kubelet
+ExecStart=/opt/k8s/bin/kubelet \\
+  --bootstrap-kubeconfig=/etc/kubernetes/kubelet-bootstrap.kubeconfig \\
+  --cert-dir=/etc/kubernetes/cert \\
+  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \\
+  --config=/etc/kubernetes/kubelet.config.json \\
+  --hostname-override=##NODE_NAME## \\
+  --pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest \\
+  --allow-privileged=true \\
+  --alsologtostderr=true \\
+  --logtostderr=false \\
+  --log-dir=/var/log/kubernetes \\
+  --v=2
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+- 如果设置了 --hostname-override 选项，则 kube-proxy 也需要设置该选项，否则会出现找不到 Node 的情况；
+- --bootstrap-kubeconfig：指向 bootstrap kubeconfig 文件，kubelet 使用该文件中的用户名和 token 向 kube-apiserver 发送 TLS Bootstrapping 请求；
+- K8S approve kubelet 的 csr 请求后，在 --cert-dir 目录创建证书和私钥文件，然后写入 --kubeconfig 文件。
+
+为各节点创建和分发 kubelet systemd unit 文件：
+
+```
+cd
+
+cat > magic60_create_distribute_kubelet_file.sh << "EOF"
+#!/bin/bash
+# 为各节点创建和分发 kubelet systemd unit 文件
+source /opt/k8s/bin/environment.sh
+for node_name in ${NODE_NAMES[@]}
+do 
+    echo ">>> ${node_name}"
+    sed -e "s/##NODE_NAME##/${node_name}/" /data/template/kubelet.service.template > /data/template/kubelet-${node_name}.service
+    scp /data/template/kubelet-${node_name}.service root@${node_name}:/etc/systemd/system/kubelet.service
+    scp /etc/kubernetes/kubelet-bootstrap-${node_name}.kubeconfig root@${node_name}:/etc/kubernetes/kubelet-bootstrap.kubeconfig
+done
+EOF
+
+chmod +x magic60_create_distribute_kubelet_file.sh
+./magic60_create_distribute_kubelet_file.sh
+```
+
+### 5.Bootstrap token auth和权限授予
+
+kublet 启动时查找配置的 –kubeletconfig 文件是否存在，如果不存在则使用 --bootstrap-kubeconfig 向 kube-apiserver 发送证书签名请求 (CSR)。
+
+kube-apiserver 收到 CSR 请求后，对其中的 Token 进行认证（事先使用 kubeadm 创建的 token），认证通过后将请求的 user 设置为 system:bootstrap:，group 设置为 system:bootstrappers，这一过程称为 Bootstrap Token Auth。
+
+默认情况下，这个 user 和 group 没有创建 CSR 的权限，kubelet 启动失败，错误日志如下：
+
+```
+sudo journalctl -u kubelet -a |grep -A 2 'certificatesigningrequests'
+XX XX XX:XX:XX kube-node1 kubelet[26986]: F0506 XX:XX:XX.314378   26986 server.go:233] failed to run Kubelet: cannot create certificate signing request: certificatesigningrequests.certificates.k8s.io is forbidden: User "system:bootstrap:lemy40" cannot create certificatesigningrequests.certificates.k8s.io at the cluster scope
+XX XX XX:XX:XX kube-node1 systemd[1]: kubelet.service: Main process exited, code=exited, status=255/n/a
+XX XX XX:XX:XX kube-node1 systemd[1]: kubelet.service: Failed with result 'exit-code'.
+```
+
+解决：创建一个 clusterrolebinding 将 group system:bootstrappers 和 clusterrole system:node-bootstrapper 绑定：
+
+```
+kubectl create clusterrolebinding kubelet-bootstrap \
+  --clusterrole=system:node-bootstrapper \
+  --group=system:bootstrappers
+```
+
+### 6.启动kubelet服务
+
+```
+cd
+
+cat > magic61_start_kubelet_server.sh << "EOF"
+#!/bin/bash
+source /opt/k8s/bin/environment.sh
+for node_ip in ${NODE_IPS[@]}
+do
+    echo ">>> ${node_ip}" 
+    ssh root@${node_ip} "mkdir -p /var/lib/kubelet"
+    ssh root@${node_ip} "/usr/sbin/swapoff -a"
+    ssh root@${node_ip} "mkdir -p /var/log/kubernetes && chown -R k8s /var/log/kubernetes"
+    ssh root@${node_ip} "systemctl daemon-reload && systemctl enable kubelet && systemctl restart kubelet"
+done
+EOF
+
+chmod +x magic61_start_kubelet_server.sh
+./magic61_start_kubelet_server.sh
+```
+
+- 关闭 swap 分区，否则 kubelet 会启动失败；
+
+- 必须先创建工作和日志目录；
+
+  ```
+  journalctl -u kubelet |tail
+  XX XX XX:XX:XX kube-node1 kubelet[17331]: I1124 XX:XX:XX.255251   17331 container_manager_linux.go:427] [ContainerManager]: Discovered runtime cgroups name: /system.slice/docker.service
+  XX XX XX:XX:XX kube-node1 kubelet[17331]: I1124 XX:XX:XX.255711   17331 container_manager_linux.go:427] [ContainerManager]: Discovered runtime cgroups name: 
+  ...........
+  ```
+
+kubelet 启动后使用 --bootstrap-kubeconfig 向 kube-apiserver 发送 CSR 请求，当这个 CSR 被 approve 后，kube-controller-manager 为 kubelet 创建 TLS 客户端证书、私钥和 --kubeletconfig 文件。
+
+注意：kube-controller-manager 需要配置 --cluster-signing-cert-file 和 --cluster-signing-key-file 参数，才会为 TLS Bootstrap 创建证书和私钥。
+
+```
+kubectl get csr
+NAME                                                   AGE       REQUESTOR                 CONDITION
+node-csr-QzuuQiuUfcSdp3j5W4B2UOuvQ_n9aTNHAlrLzVFiqrk   43s       system:bootstrap:zkiem5   Pending
+node-csr-oVbPmU-ikVknpynwu0Ckz_MvkAO_F1j0hmbcDa__sGA   27s       system:bootstrap:mkus5s   Pending
+node-csr-u0E1-ugxgotO_9FiGXo8DkD6a7-ew8sX2qPE6KPS2IY   13m       system:bootstrap:k0s2bj   Pending
+
+kubectl get nodes
+  No resources found.
+```
+
+- 三个 work 节点的 csr 均处于 pending 状态
