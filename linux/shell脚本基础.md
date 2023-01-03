@@ -246,3 +246,49 @@ test -d /home
 
 ## 10.if判断
 
+- 单分支
+
+```shell
+if 条件测试 ;then
+	命令
+if
+```
+
+- 双分支
+
+```shell
+if 条件测试 ;then
+	命令
+else 
+	命令
+fi
+```
+
+- 多分支
+
+```shell
+if 条件测试1 ;then
+	命令
+elif 条件测试2 ;then
+	命令
+fi
+```
+
+## 11.case
+
+```shell
+case 变量 in
+模式一)
+	命令
+	;;
+模式二)
+	命令
+	;;
+模式三)
+	命令
+	;;
+*)
+	命令
+esac
+```
+
