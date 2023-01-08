@@ -292,3 +292,162 @@ case 变量 in
 esac
 ```
 
+## 12、for循环
+
+```shell
+for 变量名 [in 取值列表]
+do
+	循环体
+done
+```
+
+## 13、expect
+
+一个根据脚本与其他交互式程序进行交互。通过在脚本中设定期望值和响应值进行交互操作。主要应用于执行命令和程序时， 系统以交互形式要求输入指定字符串，实现交互通信。expect工具可以控制、处理输入，输出流，然后提供自动填写数据等需要用户交互式输入的数据的地方实现自动化处理。Expect 就是为了处理“自动交互”的工具。
+
+```shell
+#!/user/bin/expect
+
+# 开启一个会话
+spawn ssh root@192.168.73.128
+
+# 把交互会出现什么，怎么做先写好
+expect {
+	"yes/no" { send "yes\r"; exp_continue } # 当出现yes/no 字符串，就发送yes+回车，不出现就继续
+	"password" { send "centos\r" };	# 出现password字符串，发送密码，分号结束
+}
+interact # 停在对端交互
+```
+
+
+
+**expect 工作原理：pawn启动指定进程—expect获取指定关键字—send向指定程序发送指定字符—执行完成退出**
+
+```shell
+vim test.exp => 一般将expect脚本的后缀命名为".exp"
+
+#!/usr/bin/expect => expect的解析器，与shell中的#!/bin/bash类似
+
+set timeout n => 设置超时时间n秒，表示下面的代码需在n秒钟内完成，如果超过，则退出。用来防止ssh远程主机网络不可达时卡住及在远程主机执行命令宕住
+
+set name "12345" => set设置变量，name的值为123456
+
+spawn command1 command2.. => 执行命令，也可以将变量作为命令输入
+
+expect{ => 接受执行命令返回的信息
+
+"accept1" {send "instruction1\r"; exp_continue} => 匹配到accest1，发送instruction1 指令并且\r 回车执行
+
+"accept2" {send "instruction2\r"; exp_continue} => 匹配到accest2，发送instruction2 指令并且\r 回车执行，
+
+ exp_continue表示循环匹配
+
+"accept3" {send "\r"; exp_continue} => 匹配到accept3表示直接回车执行
+
+"accept4" {send "$name\r"} => 匹配到accept4,将变量值作为指令，并且回车执行
+
+}
+```
+
+ 
+
+### expect 启用选项：
+
+-c 执行脚本前先执行的命令，可多次使用 
+-d debug模式，可以在运行时输出一些诊断信息，与在脚本开始处使用exp_internal 1相似。 
+-D 启用交换调式器,可设一整数参数。 
+-f 从文件读取命令，仅用于使用#!时。如果文件名为"-"，则从stdin读取(使用"./-"从文件名为-的文件读取)。 
+-i 交互式输入命令，使用"exit"或"EOF"退出输入状态 
+-- 标示选项结束(如果你需要传递与expect选项相似的参数给脚本时)，可放到#!行:#!/usr/bin/expect -- 
+-v 显示expect版本信息
+
+
+
+### expect 命令参数：
+
+- spawn 交互程序开始，执行后面的命令或程序。需要进入到expect环境才可以执行，不能直接在shell环境下直接执行
+- set timeout n 设置超时时间，表示该脚本代码需在n秒钟内完成，如果超过，则退出。用来防止ssh远程主机网络不可达时卡住及在远程主机执行命令宕住。如果设置为-1表示不会超时
+- set 定义变量
+- $argv expect脚本可以接受bash的外部传参，可以使用[ lindex $argv n ]n为0表示第一个传参，为1表示第二个传参
+- expect 从交互程序进程中指定接收信息, 如果匹配成功, 就执行send的指令交互；否则等待timeout秒后自动退出expect语句
+- send 如果匹配到expect接受到的信息，就将send中的指令交互传递，执行交互动作。结尾处加上\r表示如果出现异常等待的状态可以进行核查 
+- exp_continue 表示循环式匹配，通常匹配之后都会退出语句，但如果有exp_continue则可以不断循环匹配，输入多条命令，简化写法。 
+- exit 退出expect脚本 
+- expect eof spawn进程结束后会向expect发送eof，接收到eof代表该进程结束 
+- interact 执行完代码后保持交互状态，将控制权交给用户。没有该命令执行完后自动退出而不是留在远程终端上 
+- puts 输出变量
+
+
+
+**多分支例子：**
+
+```shell
+#!/usr/bin/expect
+
+set timeout 30
+spawn command
+
+exect {
+"Match message1" { send "instruction1\r";exp_continue} => exp_continu表示可以多次匹配
+"Match message2" { send "instruction2\r";exp_continue }
+"Match message3" { send "\r"} => 代表直接回车选择默认选项
+...
+}
+
+interact => 不退出，保持交互状态
+```
+
+
+
+**登录例子**：
+
+```shell
+# vim test.exp
+
+#!/usr/bin/expect
+
+set host [ lindex $argv 0 ]
+set ip [ lindex $argv 1 ]
+set passwd [ lindex $argv 2 ]
+set cmd [ lindex $argv 3 ]
+
+if {$argc < 4} {
+ puts "Usage:cmd <hostname> <ipaddress> <password> <cmd>"
+ exit 1
+}
+
+set timeout 20
+
+spawn ssh -l $host $ip $cmd
+
+expect "password"
+send "$passwd\r"
+
+expect eof => 注意：就算 这里是interact也不会以保持交互状态
+```
+
+**shell中嵌套expect**
+
+```shell
+#!/bin/bash
+
+$ip=10.1.1.15
+$user=root
+$pass=toor
+
+/usr/bin/expect <<-EOF
+set timeout 20
+spawn ssh $user@$IP
+
+expect {
+ "yes/no" { send "yes\r"; exp_continue }
+ "password" { send "$pass\r" }
+}
+
+expect "]#"
+send "touch file{1..10}"
+expect eof
+
+EOF
+```
+
