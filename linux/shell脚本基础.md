@@ -365,7 +365,7 @@ expect{ => 接受执行命令返回的信息
 
 ### expect 命令参数：
 
-- spawn 交互程序开始，执行后面的命令或程序。需要进入到expect环境才可以执行，不能直接在shell环境下直接执行
+- spawn 交互程序开始，执行后面的命令或程序。需要进入到expect环境才可以执行，不能直接在shell环境下直接执行，可以处理ssh、ftp等交互
 - set timeout n 设置超时时间，表示该脚本代码需在n秒钟内完成，如果超过，则退出。用来防止ssh远程主机网络不可达时卡住及在远程主机执行命令宕住。如果设置为-1表示不会超时
 - set 定义变量
 - $argv expect脚本可以接受bash的外部传参，可以使用[ lindex $argv n ]n为0表示第一个传参，为1表示第二个传参
@@ -450,4 +450,21 @@ expect eof
 
 EOF
 ```
+
+## 14、while与until循环
+
+```shell
+while 条件测试
+do
+	命令
+	break/continue/exit
+done
+
+until 条件测试  # 条件为假时执行
+do
+	命令
+done
+```
+
+## 15、并发执行
 
