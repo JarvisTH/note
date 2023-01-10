@@ -351,7 +351,7 @@ expect{ => 接受执行命令返回的信息
 
  
 
-### expect 启用选项：
+expect 启用选项：
 
 -c 执行脚本前先执行的命令，可多次使用 
 -d debug模式，可以在运行时输出一些诊断信息，与在脚本开始处使用exp_internal 1相似。 
@@ -361,9 +361,7 @@ expect{ => 接受执行命令返回的信息
 -- 标示选项结束(如果你需要传递与expect选项相似的参数给脚本时)，可放到#!行:#!/usr/bin/expect -- 
 -v 显示expect版本信息
 
-
-
-### expect 命令参数：
+expect 命令参数：
 
 - spawn 交互程序开始，执行后面的命令或程序。需要进入到expect环境才可以执行，不能直接在shell环境下直接执行，可以处理ssh、ftp等交互
 - set timeout n 设置超时时间，表示该脚本代码需在n秒钟内完成，如果超过，则退出。用来防止ssh远程主机网络不可达时卡住及在远程主机执行命令宕住。如果设置为-1表示不会超时
@@ -468,3 +466,106 @@ done
 
 ## 15、并发执行
 
+一般是多进程并发执行。
+
+```shell
+#!/usr/bin/bash
+for i in {1..254}
+do
+        {
+            ping -c1 -W1 127.0.0.1 &>/dev/null
+            echo $i
+        }&
+done
+wait
+
+[root@localhost ~]# ./test.sh
+1
+15
+19
+55
+```
+
+上面这种并发，对于小数量的并发ok，但是大规模并发就可能会报错，**需要控制并发数量**。
+
+**文件描述符：File Description（FD），也叫文件句柄**，进程使用文件描述符来管理打开的文件，只要文件被打开就一直存在，直到被关闭释放。位于目录/proc/下进程的fd目录中：
+
+```shell
+[root@localhost proc]# ll /proc/$$/fd			
+total 0
+lrwx------. 1 root root 64 Dec 29 02:14 0 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 1 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 2 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:29 255 -> /dev/pts/2
+[root@localhost fd]# echo $$			# $$ 表示当前进程  可以写pid
+8455
+[root@localhost fd]# ll /proc/8455/fd
+total 0
+lrwx------. 1 root root 64 Dec 29 02:14 0 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 1 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 2 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:29 255 -> /dev/pts/2
+```
+
+**如何打开文件和关闭文件**？
+
+```shell
+[root@localhost ~]# touch file1
+[root@localhost ~]# exec 6<> ./file1		# 打开一个文件
+[root@localhost ~]# ll /proc/$$/fd
+total 0
+lrwx------. 1 root root 64 Dec 29 02:14 0 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 1 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 2 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:29 255 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 6 -> /root/file1
+[root@localhost ~]# echo "test" > /root/file1
+[root@localhost ~]# cat file1
+test
+[root@localhost ~]# rm -rf file1
+[root@localhost ~]# ll /proc/$$/fd
+total 0
+lrwx------. 1 root root 64 Dec 29 02:14 0 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 1 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 2 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:29 255 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 6 -> /root/file1 (deleted)
+[root@localhost ~]# exec 6<&-				# 关闭文件
+[root@localhost ~]# ll /proc/$$/fd
+total 0
+lrwx------. 1 root root 64 Dec 29 02:14 0 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 1 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:14 2 -> /dev/pts/2
+lrwx------. 1 root root 64 Dec 29 02:29 255 -> /dev/pts/2
+```
+
+文件被删除后，即使使用备份恢复，原FD仍然显示被删除，因为每打开一个文件，它的nodeid都不同。**如果文件的句柄没有被释放，即使文件被删除了，它的fd也还在。**
+
+
+
+**管道**：|
+
+![image-20230110232300825](https://cdn.jsdelivr.net/gh/JarvisTH/picbed/img/image-20230110232300825.png)
+
+一般使用的管道 | 是**匿名管道**，只能在一个终端。
+
+**命名管道**：管道也是一个文件，只能读一次，可以跨终端。
+
+```shell
+# 终端1
+[root@localhost ~]# mkfifo /tmp/fifo1			
+[root@localhost ~]# file /tmp/fifo1
+/tmp/fifo1: fifo (named pipe)
+[root@localhost ~]# cat /tmp/fifo1
+^C
+[root@localhost ~]# ll /dev > /tmp/fifo1		# 1
+[root@localhost ~]#							   
+
+# 同时打开同一个环境的终端2
+[root@localhost ~]# grep 'sda' /tmp/fifo1		# 2
+brw-rw----.  1 root disk      8,   0 Dec 29 00:34 sda
+brw-rw----.  1 root disk      8,   1 Dec 29 00:34 sda1
+brw-rw----.  1 root disk      8,   2 Dec 29 00:34 sda2
+```
+
+在终端2执行完  2 后，一直处于等待管道中的内容；当终端1执行完 1 后，终端2才显示内容。

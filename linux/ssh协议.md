@@ -138,6 +138,15 @@ total 12
 -rw-r--r--. 1 root root  176 Dec 29 01:04 known_hosts
 ```
 
+脚本中使用时，可以使用echo 配合管道符避免回车交互：
+
+```shell
+[root@localhost ~]# echo ""| ssh-keygen -t rsa
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): /root/.ssh/id_rsa already exists.
+Overwrite (y/n)? [root@localhost ~]#
+```
+
 - 分发到对端节点--**ssh-copy-id**
 
 ```shell
@@ -175,3 +184,8 @@ Last login: Mon Jan  9 17:33:13 2023 from 192.168.73.1
 - 非免密：小规模环境，免密环境初始化
 - 免密：大集群中适用，安全策略要求高、root密码定期更换，自动化运维工具
 - 结合使用：利用ssh非免密创建免密环境，借助免密环境，利用其他工具完成部署安装
+
+## 五、跨主机执行命令返回值处理
+
+本地执行命令结果可以使用 $? 查看，远程命令的执行结果依然可以使用 $? ，不过一些指令是使用 $? 获取不到的，需要使用其他的获取。
+
