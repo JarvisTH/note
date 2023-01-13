@@ -569,3 +569,149 @@ brw-rw----.  1 root disk      8,   2 Dec 29 00:34 sda2
 ```
 
 在终端2执行完  2 后，一直处于等待管道中的内容；当终端1执行完 1 后，终端2才显示内容。
+
+```shell
+#!/usr/bin/bash
+
+process=5
+tmp_fifo=/tmp/$$.fifo
+
+mkfifo $tmp_fifo
+exec 8<> $tmp_file
+rm $tmp_fifo
+
+for i in `seq $process`
+do
+	echo >&8	# 写了5个回车
+done
+
+
+for i in {1..254}
+do
+		read -u 8 	# 读到文件描述符才能循环
+        {
+            ping -c1 -W1 127.0.0.1 &>/dev/null
+            echo $i
+            echo >&8
+        }&
+done
+wait
+```
+
+上面的脚本，利用了管道的内容只能读取一次的特性，向文件描述符中写入了5个回车，并发时获取到一个内容才能继续循环，相当于一个锁，每读一次消耗一个，循环体执行完再加一个锁。
+
+## 16、数值
+
+数组可以一次赋值一个下标，也可以一次赋值全部值。
+
+还可以将命令执行回执结果的每一行作为值，赋值为数值。
+
+declare命令默认不会识别出管理数组，所以需要声明关联数组。
+
+### 1.普通数值
+
+只能使用**整数**作为数值索引。
+
+```shell
+[root@localhost ~]# books=(linux shell awk sed)
+[root@localhost ~]# declare -a				# 查看数组
+declare -a BASH_ARGC='()'
+declare -a BASH_ARGV='()'
+declare -a BASH_LINENO='()'
+declare -a BASH_SOURCE='()'
+declare -ar BASH_VERSINFO='([0]="4" [1]="2" [2]="46" [3]="2" [4]="release" [5]="x86_64-redhat-linux-gnu")'
+declare -a DIRSTACK='()'
+declare -a FUNCNAME='()'
+declare -a GROUPS='()'
+declare -a PIPESTATUS='([0]="0")'
+declare -a books='([0]="linux" [1]="shell" [2]="awk" [3]="sed")'
+[root@localhost ~]# echo ${books[1]}
+shell
+[root@localhost ~]# echo ${books[@]}	# 查看数组所有元素
+linux shell awk sed
+[root@localhost ~]# echo ${books[*]}	# 查看数组所有元素
+linux shell awk sed
+[root@localhost ~]# echo ${#books[*]}  	# 查看数组元素个数
+4
+[root@localhost ~]# echo ${!books[*]}	# 获取数组元素索引
+0 1 2 3
+[root@localhost ~]# echo ${!student[*]}
+name height age
+[root@localhost ~]# echo ${books[*]:1}	# 从数组下标1开始 就是之前变量的切片操作
+shell awk sed
+[root@localhost ~]# echo ${books[*]:1:2}	# 从数组下标1开始，访问两个元素 
+shell awk
+[root@localhost ~]# arr=(test1 tes2 [10]=test10)
+[root@localhost ~]# declare -a
+declare -a PIPESTATUS='([0]="0")'
+declare -a arr='([0]="test1" [1]="tes2" [10]="test10")' # 数组下标的跳变
+```
+
+```shell
+# 变量的切片
+[root@localhost ~]# name=person
+[root@localhost ~]# echo ${name:1}
+erson
+[root@localhost ~]# echo ${name:1:2}
+er
+```
+
+
+
+### 2.关联数值
+
+可以使用**字符串**作为数值索引
+
+```shell
+# 一个一个赋值
+[root@localhost ~]# declare -A person	# 声明管理数组
+[root@localhost ~]# person[age]=jarvis
+[root@localhost ~]# person[height]=170
+[root@localhost ~]# person[name]=test
+[root@localhost ~]# declare -A
+declare -A BASH_ALIASES='()'
+declare -A BASH_CMDS='()'
+declare -A person='([name]="test" [height]="170" [age]="jarvis" )'
+# 一次赋多个值
+[root@localhost ~]# declare -A student=([name]=jarvis [age]=18 [height]=170)
+[root@localhost ~]# declare -A
+declare -A BASH_ALIASES='()'
+declare -A BASH_CMDS='()'
+declare -A person='([name]="test" [height]="170" [age]="jarvis" )'
+declare -A student='([name]="jarvis" [height]="170" [age]="18" )'
+[root@localhost ~]# echo ${student[name]}
+jarvis
+```
+
+
+
+```shell
+[root@localhost ~]# ls
+anaconda-ks.cfg  dump.rdb  nohup.out  script  test  test1.sh  test.sh
+[root@localhost ~]# fileArr=(`ls`)
+[root@localhost ~]# declare -a
+declare -a BASH_ARGC='()'
+declare -a BASH_ARGV='()'
+declare -a BASH_LINENO='()'
+declare -a BASH_SOURCE='()'
+declare -ar BASH_VERSINFO='([0]="4" [1]="2" [2]="46" [3]="2" [4]="release" [5]="x86_64-redhat-linux-gnu")'
+declare -a DIRSTACK='()'
+declare -a FUNCNAME='()'
+declare -a GROUPS='()'
+declare -a PIPESTATUS='([0]="0")'
+declare -a books='([0]="linux" [1]="shell" [2]="awk" [3]="sed")'
+declare -a fileArr='([0]="anaconda-ks.cfg" [1]="dump.rdb" [2]="nohup.out" [3]="script" [4]="test" [5]="test1.sh" [6]="test.sh")'
+```
+
+``是命令替换，先执行命令。**分割符（$IFS）是空格，所以写了6个下标，如果想整行输出到数组，需要重定义分隔符为换行符**。
+
+```shell
+[root@localhost ~]# OLD_IFS=$IFS
+[root@localhost ~]# IFS=$'\n'
+[root@localhost ~]# files=(`ls -l`)
+[root@localhost ~]# IFS=$OLD_IFS
+[root@localhost ~]# declare -a
+declare -a fileArr='([0]="anaconda-ks.cfg" [1]="dump.rdb" [2]="nohup.out" [3]="script" [4]="test" [5]="test1.sh" [6]="test.sh")'
+declare -a files='([0]="total 20" [1]="-rw-------. 1 root root 1260 May 25  2022 anaconda-ks.cfg" [2]="-rw-r--r--. 1 root root   77 Jun  4  2022 dump.rdb" [3]="-rw-------. 1 root root    0 Jun  5  2022 nohup.out" [4]="drwxr-xr-x. 2 root root   22 Jun  5  2022 script" [5]="-rwxr-xr-x. 1 root root  310 Jun  5  2022 test" [6]="-rwxr-xr-x. 1 root root  352 Dec 29 03:08 test1.sh" [7]="-rwxr-xr-x. 1 root root  114 Dec 29 02:20 test.sh")'
+```
+
