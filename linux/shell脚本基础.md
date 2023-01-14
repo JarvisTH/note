@@ -295,10 +295,16 @@ esac
 ## 12、for循环
 
 ```shell
-for 变量名 [in 取值列表]
+for 变量名 [in 取值列表] 	# shell 风格
 do
 	循环体
 done
+
+for ((i=1;i<=10;i++))	# c 风格
+do
+	代码块
+done
+
 ```
 
 ## 13、expect
@@ -715,3 +721,173 @@ declare -a fileArr='([0]="anaconda-ks.cfg" [1]="dump.rdb" [2]="nohup.out" [3]="s
 declare -a files='([0]="total 20" [1]="-rw-------. 1 root root 1260 May 25  2022 anaconda-ks.cfg" [2]="-rw-r--r--. 1 root root   77 Jun  4  2022 dump.rdb" [3]="-rw-------. 1 root root    0 Jun  5  2022 nohup.out" [4]="drwxr-xr-x. 2 root root   22 Jun  5  2022 script" [5]="-rwxr-xr-x. 1 root root  310 Jun  5  2022 test" [6]="-rwxr-xr-x. 1 root root  352 Dec 29 03:08 test1.sh" [7]="-rwxr-xr-x. 1 root root  114 Dec 29 02:20 test.sh")'
 ```
 
+## 17、函数
+
+完成特定功能的代码片段，便于代码模块化、复用代码。
+
+### 1.定义
+
+```
+函数名(){
+	代码块
+}
+
+function 函数名 {
+	代码块
+}
+```
+
+### 2.调用
+
+传参： $1 $2，使用位置参数，注意区别脚本的入参与函数的入参区别。接收数组变量，使用$* 或者 $@
+
+变量: local
+
+返回值: return $?，返回码最大的值是255；自定义函数返回值，不能超过255数值。如果需要返回超过255的值，则可以将函数的结果echo出来，将函数赋值给外部变量，外部调用该变量。
+
+```
+函数名
+函数名 param1 param2
+```
+
+传入数组：
+
+```shell
+#!/usr/bin/bash
+num=(1 2 3 4 5)
+echo ${num[*]}
+
+array() {
+	local fac=1
+	for i in "$@"	# 获取所有参数 */@
+	do
+		fac=$[fac * $i]
+	done
+	echo $fac
+}
+
+array ${num[*]}
+```
+
+返回数组：
+
+```shell
+#!/usr/bin/bash
+num=(1 2 3 4 5)
+
+array() {
+	#local arr=($*)
+	
+	local i
+	local arr=()
+        #for((i=0;i<$#;i++))
+        #do
+        #    arr[$i]=$[ ${$arr[$i]} * 5 ]
+        #done
+        for i in $*
+        do
+            arr[$i]=$[ $i * 5 ]
+        done
+	}
+	echo $arr[*]
+}
+
+result=array ${num[*]}
+```
+
+### 3.内置命令
+
+- true
+- false
+- exit：退出整个程序
+- break：退出当前循环，对于多层循环，break + num 可以指定跳出层数
+- continue：跳过本次循环
+- shift：使位置参数向左移动，默认移动一位。
+
+## 18、grep 家族
+
+- grep：在文件中全局查找指定的正则表达式，并打印所有包含该表达式的行
+- egrep：扩展的grep。支持更多的正则表达式字符
+- fgrep：固定grep（fixed grep），按字母解释所有字符串
+
+grep的输入可以来自输入或者管道、文件。
+
+## 19、Sed流编辑器
+
+![image-20230114162752919](https://cdn.jsdelivr.net/gh/JarvisTH/picbed/img/image-20230114162752919.png)
+
+sed是一种在线、非交互式的编辑器，一次处理一行内容。处理时，把当前处理行存储在临时缓冲区（模式空间），然后使用sed处理缓冲区内容。完成后，将结果输出到屏幕，接着处理下一行，直到文件末尾。
+
+sed主要用来自动编辑一个或者多个文件，简化对文件的重复操作。sed命令不管是否找到指定模式，退出状态都是0，除非是语法错误，返回非0。支持正则表达式.
+
+```shell
+sed [options] 'command' file
+```
+
+命令使用参考sed笔记。
+
+
+
+**sed地址**：地址决定对哪些行进行编辑，形式可以是数字、正则表达式等，没有指定地址则逐行处理。
+
+```shell
+# 数字方式
+sed -r 'd' /tmp/test 	# 逐行删除即所有行
+sed -r '3d' /tmp/test 	# 删除第三行
+sed -r '1,3d' /tmp/test	# 删除1-3行
+sed -r '3,$d' /tmp/test	# 删除3到最后一行
+# 正则
+sed -r '/root/d' /tmp/test	# 删除root行
+sed -r '/root/,5d' /tmp/test	# 删除root行到第5行，可能会反复匹配
+sed -r '/root/,+5d' /tmp/test	# 再删除5行
+sed -r '1~2d' /tmp/test	# 从1开始，每隔2行删，删除奇数行
+sed -r '0~2d' /tmp/test	# 从0开始，每隔2行删，删除偶数行
+```
+
+
+
+**sed命令**：对指定行进行的操作
+
+- a：在当前行后添加一行或者多行
+- c：使用新文本修改当前行中的文本
+- d：删除行
+- i：在当前行之前插入文本
+- l：列出非打印字符
+- p：打印行
+- n：读入下一行，并从下一条命令而不是第一条命令开始对其处理
+- q：退出
+- ！：对所选行外的所有行应用命令
+- S：用一个字符串替换另一个，g 在行内全局替换，i 忽略大小写
+- r：从文件中读
+- w：将行写入文件
+- y：将字符转为另一个字符
+- h：把模式空间的内容复制到暂存缓冲区
+- H：把模式空间的内容追加到暂存缓冲区
+- g：取出暂存缓冲区内容，复制到模式空间，覆盖原有内容
+- G：取出暂存缓冲区内容，复制到模式空间，追加内容
+- x：交互暂存缓冲区和模式空间内容
+
+
+
+**选项**：
+
+- -e：允许多项编辑
+- -f：指定sed脚本文件名
+- -n：取消默认输出
+- -i：就地编辑
+- -r：支持扩展元字符
+
+```shell
+sed -r '3{p;d}' /tmp/test #  {}中可以包含多个处理同一行的命令，；号区分命令
+sed -r '1h;$G' /tmp/test	# 处理第一行时，复制到暂存空间；处理到最后一行时，再把暂存框架追加到模式空间
+sed -r '1{h;d};$G' /tmp/test
+sed -r -e '1,3d;s/jarvis/test/' /tmp/test	# 删除1-3行；替换jarvis字符串
+
+sed -ri '/^[ \t]*#/d' file	# 删除#号注释
+sed -ri '\Y^[ \t]*//Yd' file	# 删除 / 开始的行
+sed -ri	'/^[ \t]*$/d' file	# 删除无内容空行
+```
+
+
+
+## 20.Awk
