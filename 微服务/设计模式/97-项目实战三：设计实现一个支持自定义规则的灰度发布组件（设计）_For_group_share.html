@@ -1,0 +1,959 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>97-项目实战三：设计实现一个支持自定义规则的灰度发布组件（设计）</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <style>
+        html {
+            color: #333;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-rendering: optimizelegibility;
+            font-family: Helvetica Neue, PingFang SC, Verdana, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif
+        }
+
+        html.borderbox *,
+        html.borderbox :after,
+        html.borderbox :before {
+            box-sizing: border-box
+        }
+
+        article,
+        aside,
+        blockquote,
+        body,
+        button,
+        code,
+        dd,
+        details,
+        dl,
+        dt,
+        fieldset,
+        figcaption,
+        figure,
+        footer,
+        form,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        header,
+        hr,
+        input,
+        legend,
+        li,
+        menu,
+        nav,
+        ol,
+        p,
+        pre,
+        section,
+        td,
+        textarea,
+        th,
+        ul {
+            margin: 0;
+            padding: 0
+        }
+
+        article,
+        aside,
+        details,
+        figcaption,
+        figure,
+        footer,
+        header,
+        menu,
+        nav,
+        section {
+            display: block
+        }
+
+        audio,
+        canvas,
+        video {
+            display: inline-block
+        }
+
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font: 300 1em/1.8 PingFang SC, Lantinghei SC, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, Helvetica, sans-serif
+        }
+
+        button::-moz-focus-inner,
+        input::-moz-focus-inner {
+            padding: 0;
+            border: 0
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0
+        }
+
+        fieldset,
+        img {
+            border: 0
+        }
+
+        blockquote {
+            position: relative;
+            color: #999;
+            font-weight: 400;
+            border-left: 1px solid #1abc9c;
+            padding-left: 1em;
+            margin: 1em 3em 1em 2em
+        }
+
+        @media only screen and (max-width: 640px) {
+            blockquote {
+                margin: 1em 0
+            }
+        }
+
+        abbr,
+        acronym {
+            border-bottom: 1px dotted;
+            font-variant: normal
+        }
+
+        abbr {
+            cursor: help
+        }
+
+        del {
+            text-decoration: line-through
+        }
+
+        address,
+        caption,
+        cite,
+        code,
+        dfn,
+        em,
+        th,
+        var {
+            font-style: normal;
+            font-weight: 400
+        }
+
+        ol,
+        ul {
+            list-style: none
+        }
+
+        caption,
+        th {
+            text-align: left
+        }
+
+        q:after,
+        q:before {
+            content: ""
+        }
+
+        sub,
+        sup {
+            font-size: 75%;
+            line-height: 0;
+            position: relative
+        }
+
+        :root sub,
+        :root sup {
+            vertical-align: baseline
+        }
+
+        sup {
+            top: -.5em
+        }
+
+        sub {
+            bottom: -.25em
+        }
+
+        a {
+            color: #1abc9c
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        .typo a {
+            border-bottom: 1px solid #1abc9c
+        }
+
+        .typo a:hover {
+            border-bottom-color: #555;
+            color: #555
+        }
+
+        .typo a:hover,
+        a,
+        ins {
+            text-decoration: none
+        }
+
+        .typo-u,
+        u {
+            text-decoration: underline
+        }
+
+        mark {
+            background: #fffdd1;
+            border-bottom: 1px solid #ffedce;
+            padding: 2px;
+            margin: 0 5px
+        }
+
+        code,
+        pre,
+        pre tt {
+            font-family: Courier, Courier New, monospace
+        }
+
+        pre {
+            background: hsla(0, 0%, 97%, .7);
+            border: 1px solid #ddd;
+            padding: 1em 1.5em;
+            display: block;
+            -webkit-overflow-scrolling: touch
+        }
+
+        hr {
+            border: none;
+            border-bottom: 1px solid #cfcfcf;
+            margin-bottom: .8em;
+            height: 10px
+        }
+
+        .typo-small,
+        figcaption,
+        small {
+            font-size: .9em;
+            color: #888
+        }
+
+        b,
+        strong {
+            font-weight: 700;
+            color: #000
+        }
+
+        [draggable] {
+            cursor: move
+        }
+
+        .clearfix:after,
+        .clearfix:before {
+            content: "";
+            display: table
+        }
+
+        .clearfix:after {
+            clear: both
+        }
+
+        .clearfix {
+            zoom: 1
+        }
+
+        .textwrap,
+        .textwrap td,
+        .textwrap th {
+            word-wrap: break-word;
+            word-break: break-all
+        }
+
+        .textwrap-table {
+            table-layout: fixed
+        }
+
+        .serif {
+            font-family: Palatino, Optima, Georgia, serif
+        }
+
+        .typo-dl,
+        .typo-form,
+        .typo-hr,
+        .typo-ol,
+        .typo-p,
+        .typo-pre,
+        .typo-table,
+        .typo-ul,
+        .typo dl,
+        .typo form,
+        .typo hr,
+        .typo ol,
+        .typo p,
+        .typo pre,
+        .typo table,
+        .typo ul,
+        blockquote {
+            margin-bottom: 1rem
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: PingFang SC, Helvetica Neue, Verdana, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;
+            color: #000;
+            line-height: 1.35
+        }
+
+        .typo-h1,
+        .typo-h2,
+        .typo-h3,
+        .typo-h4,
+        .typo-h5,
+        .typo-h6,
+        .typo h1,
+        .typo h2,
+        .typo h3,
+        .typo h4,
+        .typo h5,
+        .typo h6 {
+            margin-top: 1.2em;
+            margin-bottom: .6em;
+            line-height: 1.35
+        }
+
+        .typo-h1,
+        .typo h1 {
+            font-size: 2em
+        }
+
+        .typo-h2,
+        .typo h2 {
+            font-size: 1.8em
+        }
+
+        .typo-h3,
+        .typo h3 {
+            font-size: 1.6em
+        }
+
+        .typo-h4,
+        .typo h4 {
+            font-size: 1.4em
+        }
+
+        .typo-h5,
+        .typo-h6,
+        .typo h5,
+        .typo h6 {
+            font-size: 1.2em
+        }
+
+        .typo-ul,
+        .typo ul {
+            margin-left: 1.3em;
+            list-style: disc
+        }
+
+        .typo-ol,
+        .typo ol {
+            list-style: decimal;
+            margin-left: 1.9em
+        }
+
+        .typo-ol ol,
+        .typo-ol ul,
+        .typo-ul ol,
+        .typo-ul ul,
+        .typo li ol,
+        .typo li ul {
+            margin-bottom: .8em;
+            margin-left: 2em
+        }
+
+        .typo-ol ul,
+        .typo-ul ul,
+        .typo li ul {
+            list-style: circle
+        }
+
+        .typo-table td,
+        .typo-table th,
+        .typo table caption,
+        .typo table td,
+        .typo table th {
+            border: 1px solid #ddd;
+            padding: .5em 1em;
+            color: #666
+        }
+
+        .typo-table th,
+        .typo table th {
+            background: #fbfbfb
+        }
+
+        .typo-table thead th,
+        .typo table thead th {
+            background: hsla(0, 0%, 95%, .7)
+        }
+
+        .typo table caption {
+            border-bottom: none
+        }
+
+        .typo-input,
+        .typo-textarea {
+            -webkit-appearance: none;
+            border-radius: 0
+        }
+
+        .typo-em,
+        .typo em,
+        caption,
+        legend {
+            color: #000;
+            font-weight: inherit
+        }
+
+        .typo-em {
+            position: relative
+        }
+
+        .typo-em:after {
+            position: absolute;
+            top: .65em;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            content: "\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB"
+        }
+
+        .typo img {
+            max-width: 100%
+        }
+
+        .common-content {
+            font-weight: 400;
+            color: #353535;
+            line-height: 1.75rem;
+            white-space: normal;
+            word-break: normal;
+            font-size: 1rem
+        }
+
+        .common-content img {
+            display: block;
+            max-width: 100%;
+            background-color: #eee
+        }
+
+        .common-content audio,
+        .common-content video {
+            width: 100%;
+            background-color: #eee
+        }
+
+        .common-content center,
+        .common-content font {
+            margin-top: 1rem;
+            display: inline-block
+        }
+
+        .common-content center {
+            width: 100%
+        }
+
+        .common-content pre {
+            margin-top: 1rem;
+            padding-left: 0;
+            padding-right: 0;
+            position: relative;
+            overflow: hidden
+        }
+
+        .common-content pre code {
+            font-size: .8rem;
+            font-family: Consolas, Liberation Mono, Menlo, monospace, Courier;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            overflow-x: auto
+        }
+
+        .common-content hr {
+            border: none;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-top: 1px solid #f5f5f5;
+            height: 1px;
+            background: none
+        }
+
+        .common-content b,
+        .common-content h1,
+        .common-content h2,
+        .common-content h3,
+        .common-content h4,
+        .common-content h5,
+        .common-content strong {
+            font-weight: 700
+        }
+
+        .common-content h1,
+        .common-content h2 {
+            font-size: 1.125rem;
+            margin-bottom: .45rem
+        }
+
+        .common-content h3,
+        .common-content h4,
+        .common-content h5 {
+            font-size: 1rem;
+            margin-bottom: .45rem
+        }
+
+        .common-content p {
+            font-weight: 400;
+            color: #353535;
+            margin-top: .15rem
+        }
+
+        .common-content .orange {
+            color: #ff5a05
+        }
+
+        .common-content .reference {
+            font-size: 1rem;
+            color: #888
+        }
+
+        .custom-rich-content h1 {
+            margin-top: 0;
+            font-weight: 400;
+            font-size: 15.25px;
+            border-bottom: 1px solid #eee;
+            line-height: 2.8
+        }
+
+        .custom-rich-content li,
+        .custom-rich-content p {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6
+        }
+
+        table.hljs-ln {
+            margin-bottom: 0;
+            border-spacing: 0;
+            border-collapse: collapse
+        }
+
+        table.hljs-ln,
+        table.hljs-ln tbody,
+        table.hljs-ln td,
+        table.hljs-ln tr {
+            box-sizing: border-box
+        }
+
+        table.hljs-ln td {
+            padding: 0;
+            border: 0
+        }
+
+        table.hljs-ln td.hljs-ln-numbers {
+            min-width: 15px;
+            color: rgba(27, 31, 35, .3);
+            text-align: right;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none
+        }
+
+        table.hljs-ln td.hljs-ln-code,
+        table.hljs-ln td.hljs-ln-numbers {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+            font-size: 12px;
+            line-height: 20px;
+            vertical-align: top
+        }
+
+        table.hljs-ln td.hljs-ln-code {
+            position: relative;
+            padding-right: 10px;
+            padding-left: 10px;
+            overflow: visible;
+            color: #24292e;
+            word-wrap: normal;
+            white-space: pre
+        }
+
+        video::-webkit-media-controls {
+            overflow: hidden !important
+        }
+
+        video::-webkit-media-controls-enclosure {
+            width: calc(100% + 32px);
+            margin-left: auto
+        }
+
+        ._29HP61GA_0 {
+            max-width:800px;
+            margin:0 auto;
+            margin-bottom: 20px;
+            font-weight: 400;
+            color: #353535;
+            line-height: 1.76;
+            white-space: normal;
+            word-break: normal;
+            font-size: 17px;
+            -webkit-transition: background-color .3s ease;
+            transition: background-color .3s ease
+        }
+
+        ._29HP61GA_0 .MathJax_Display {
+            overflow: auto
+        }
+
+        ._29HP61GA_0 .poster {
+            position: fixed;
+            left: -10000px;
+            top: -10000px;
+            overflow: hidden;
+            padding: 1rem;
+            background: #ececec
+        }
+
+        ._29HP61GA_0 .richcontent-pre-copy {
+            font-size: 13px;
+            color: #888;
+            position: absolute;
+            right: 1em;
+            top: .5em;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none
+        }
+
+        ._29HP61GA_0 .richcontent-pre-copy .iconfont {
+            font-size: 12px;
+            margin-right: .2em
+        }
+
+        ._29HP61GA_0 a {
+            color: #fa8919;
+            border-bottom: 1px solid #fa8919
+        }
+
+        ._29HP61GA_0 img {
+            display: block;
+            max-width: 100%;
+            position: relative;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            background-color: #eee;
+            vertical-align: top;
+            border-radius: 0
+        }
+
+        ._29HP61GA_0 audio,
+        ._29HP61GA_0 video {
+            width: 100%;
+            background-color: #eee
+        }
+
+        ._29HP61GA_0 pre {
+            margin-top: 16px;
+            padding: 34px 0 0;
+            margin-bottom: 30px;
+            position: relative;
+            border-radius: 6px;
+            background: rgba(246, 247, 251, .749);
+            border: 0
+        }
+
+        ._29HP61GA_0 pre code {
+            font-size: 12px;
+            font-family: Consolas, Liberation Mono, Menlo, monospace, Courier;
+            display: block;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            margin-left: 16px;
+            margin-right: 16px;
+            overflow-x: scroll
+        }
+
+        ._29HP61GA_0 pre code:after {
+            content: "";
+            height: 30px;
+            width: 100%;
+            display: block
+        }
+
+        ._29HP61GA_0 hr {
+            border: none;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-top: 1px solid #f5f5f5;
+            height: 1px;
+            background: none
+        }
+
+        ._29HP61GA_0 h1,
+        ._29HP61GA_0 h2,
+        ._29HP61GA_0 h3,
+        ._29HP61GA_0 h4,
+        ._29HP61GA_0 h5 {
+            margin-bottom: 20px;
+            margin-top: 0;
+            font-weight: 700
+        }
+
+        ._29HP61GA_0 b,
+        ._29HP61GA_0 strong {
+            font-weight: 700
+        }
+
+        ._29HP61GA_0 h1 {
+            font-size: 21px
+        }
+
+        ._29HP61GA_0 h2 {
+            font-size: 20px
+        }
+
+        ._29HP61GA_0 h3 {
+            font-size: 19px
+        }
+
+        ._29HP61GA_0 h4 {
+            font-size: 18px
+        }
+
+        ._29HP61GA_0 h5 {
+            font-size: 17px
+        }
+
+        ._29HP61GA_0 center,
+        ._29HP61GA_0 p {
+            font-weight: 400;
+            color: #353535;
+            margin-top: 0;
+            margin-bottom: 30px;
+            word-break: break-word
+        }
+
+        ._29HP61GA_0 center {
+            text-align: center
+        }
+
+        ._29HP61GA_0 blockquote {
+            margin-top: 0;
+            margin-bottom: 34px;
+            border-left: 3px solid #e8e8e8;
+            padding-left: 17px;
+            color: #353535
+        }
+
+        ._29HP61GA_0 blockquote p {
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        ._29HP61GA_0 ol,
+        ._29HP61GA_0 ul {
+            margin-bottom: 30px
+        }
+
+        ._29HP61GA_0 ol p,
+        ._29HP61GA_0 ul p {
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        ._29HP61GA_0 ol {
+            list-style: decimal;
+            margin-left: 20px
+        }
+
+        ._29HP61GA_0 ul li {
+            padding-left: 17px;
+            position: relative;
+            margin-bottom: 10px
+        }
+
+        ._29HP61GA_0 ul li:after {
+            content: "";
+            height: 6px;
+            width: 6px;
+            border-radius: 50%;
+            background: #353535;
+            position: absolute;
+            top: 10px;
+            left: 0
+        }
+
+        ._29HP61GA_0 .orange {
+            color: #fa8919
+        }
+
+        ._29HP61GA_0 .reference {
+            color: #888
+        }
+
+        ._29HP61GA_0 .m-right {
+            text-align: right
+        }
+
+        ._29HP61GA_0 .m-center {
+            text-align: center;
+            display: block
+        }
+
+        ._29HP61GA_0 .m-gray {
+            color: #888
+        }
+
+        ._29HP61GA_0 .m-small {
+            font-size: 15px
+        }
+
+        ._29HP61GA_0 table.hljs-ln {
+            margin-bottom: 0;
+            border-spacing: 0;
+            border-collapse: collapse
+        }
+
+        ._29HP61GA_0 table.hljs-ln,
+        ._29HP61GA_0 table.hljs-ln tbody,
+        ._29HP61GA_0 table.hljs-ln td,
+        ._29HP61GA_0 table.hljs-ln tr {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box
+        }
+
+        ._29HP61GA_0 table.hljs-ln td {
+            padding: 0;
+            border: 0
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-numbers {
+            min-width: 15px;
+            font-size: 12px;
+            color: rgba(27, 31, 35, .3);
+            text-align: right;
+            white-space: nowrap;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-code,
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-numbers {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+            line-height: 20px;
+            vertical-align: top
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-code {
+            position: relative;
+            padding-right: 10px;
+            padding-left: 10px;
+            overflow: visible;
+            font-size: 13px;
+            color: #666;
+            word-wrap: normal;
+            white-space: pre
+        }
+
+    </style>
+</head>
+<body>
+<div class="_29HP61GA_0">
+<h1>97-项目实战三：设计实现一个支持自定义规则的灰度发布组件（设计）</h1>
+<p>上一节课，我们介绍了灰度组件的一个需求场景，将公共服务平台的RPC接口，灰度替换为新的RESTful接口，通过灰度逐步放量，支持快速回滚等手段，来规避代码质量问题带来的不确定性风险。</p><p>跟前面两个框架类似，灰度组件的功能性需求也比较简单。上一节课我们做了简单分析，今天我们再介绍一下，这个组件的非功能性需求，以及如何通过合理的设计来满足这些非功能性需求。</p><p>话不多说，让我们正式开始今天的学习吧！</p><h2>非功能性需求</h2><p>上一节课中，我给你留了一个作业，参照限流框架，分析一下灰度组件的非功能性需求。对于限流框架，我们主要从易用性、扩展性、灵活性、性能、容错性这几个方面，来分析它的非功能性需求。对于灰度组件，我们同样也从这几个方面来分析。</p><h3>易用性</h3><p>在前面讲到限流框架和幂等框架的时候，我们都提到了“低侵入松耦合”的设计思想。因为框架需要集成到业务系统中使用，我们希望它尽可能低侵入，与业务代码松耦合，替换、移除起来更容易些。因为接口的限流和幂等跟具体的业务是无关的，我们可以把限流和幂等相关的逻辑，跟业务代码解耦，统一放到公共的地方来处理（比如Spring AOP切面中）。</p><p>但是，对于灰度来说，我们实现的灰度功能是代码级别的细粒度的灰度，而替代掉原来的if-else逻辑，是针对一个业务一个业务来做的，跟业务强相关，要做到跟业务代码完全解耦，是不现实的。所以，在侵入性这一点上，灰度组件只能做妥协，容忍一定程度的侵入。</p><!-- [[[read_end]]] --><p>除此之外，在灰度的过程中，我们要不停地修改灰度规则，在测试没有出现问题的情况下，逐渐放量。从运维的角度来说，如果每次修改灰度规则都要重启系统，显然是比较麻烦的。所以，我们希望支持灰度规则的热更新，也就是说，当我们在配置文件中，修改了灰度规则之后，系统在不重启的情况下会自动加载、更新灰度规则。</p><h3>扩展性、灵活性</h3><p>跟限流框架一样，我们希望支持不同格式（JSON、YAML、XML等）、不同存储方式（本地配置文件、Redis、Zookeeper、或者自研配置中心等）的灰度规则配置方式。这一点在限流框架中已经详细讲过了，在灰度组件中我们就不重复讲解了。</p><p>除此之外，对于灰度规则本身，在上一节课的示例中，我们定义了三种灰度规则语法格式：具体值（比如893）、区间值（比如1020-1120）、比例值（比如%30）。不过，这只能处理比较简单的灰度规则。如果我们要支持更加复杂的灰度规则，比如只对30天内购买过某某商品并且退货次数少于10次的用户进行灰度，现在的灰度规则语法就无法支持了。所以，如何支持更加灵活的、复杂的灰度规则，也是我们设计实现的重点和难点。</p><h3>性能</h3><p>在性能方面，灰度组件的处理难度，并不像限流框架那么高。在限流框架中，对于分布式限流模式，接口请求访问计数存储在中心存储器中，比如Redis。而Redis本身的读写性能以及限流框架与Redis的通信延迟，都会很大地影响到限流本身的性能，进而影响到接口响应时间。所以，对于分布式限流来说，低延迟高性能是设计实现的难点和重点。</p><p>但是，对于灰度组件来说，灰度的判断逻辑非常简单，而且不涉及访问外部存储，所以性能一般不会有太大问题。不过，我们仍然需要把灰度规则组织成快速查找的数据结构，能够支持快速判定某个灰度对象（darkTarget，比如用户ID）是否落在灰度规则设定的区间内。</p><h3>容错性</h3><p>在限流框架中，我们要求高度容错，不能因为框架本身的异常，导致接口响应异常。从业务上来讲，我们一般能容忍限流框架的暂时、小规模的失效，所以，限流框架对于异常的处理原则是，尽可能捕获所有异常，并且内部“消化”掉，不要往上层业务代码中抛出。</p><p>对于幂等框架来说，我们不能容忍框架暂时、小规模的失效，因为这种失效会导致业务有可能多次被执行，发生业务数据的错误。所以，幂等框架对于异常的处理原则是，按照fail-fast原则，如果异常导致幂等逻辑无法正常执行，让业务代码也中止。因为业务执行失败，比业务执行出错，修复的成本更低。</p><p>对于灰度组件来说，上面的两种对异常的处理思路都是可以接受的。在灰度组件出现异常时，我们既可以选择中止业务，也可以选择让业务继续执行。如果让业务继续执行，本不应该被灰度到的业务对象，就有可能被执行。这是否能接受，还是要看具体的业务。不过，我个人倾向于采用类似幂等框架的处理思路，在出现异常时中止业务。</p><h2>框架设计思路</h2><p>根据刚刚对灰度组件的非功能性需求分析，以及跟限流框架、幂等框架非功能性需求的对比，我们可以看出，在性能和容错性方面，灰度组件并没有需要特别要处理的地方，重点需要关注的是易用性、扩展性、灵活性。详细来说，主要包括这样两点：支持更灵活、更复杂的灰度规则和支持灰度规则热更新。接下来，我们就重点讲一下，针对这两个重点问题的设计思路。</p><p><strong>首先，我们来看，如何支持更灵活、更复杂的灰度规则。</strong></p><p>灰度规则的配置也是跟业务强相关的。业务方需要根据要灰度的业务特点，找到灰度对象（上节课中的darkTarget，比如用户ID），然后按照给出的灰度规则语法格式，配置相应的灰度规则。</p><p>对于像刚刚提到的那种复杂的灰度规则（只对30天内购买过某某商品并且退货次数少于10次的用户进行灰度），通过定义语法规则来支持，是很难实现的。所以，针对复杂灰度规则，我们换个思路来实现。</p><p>我暂时想到了两种解决方法。其中一种是使用规则引擎，比如Drools，可以在配置文件中调用Java代码。另一种是支持编程实现灰度规则，这样做灵活性更高。不过，缺点是更新灰度规则需要更新代码，重新部署。</p><p>对于大部分业务的灰度，我们使用前面定义的最基本的语法规则（具体值、区间值、比例值）就能满足了。对于极个别复杂的灰度规则，我们借鉴Spring的编程式配置，由业务方编程实现，具体如何来做，我们放到下一节课的代码实现中讲解。这样既兼顾了易用性，又兼顾了灵活性。</p><p>之所以选择第二种实现方式，而不是使用Drools规则引擎，主要是出于不想为了不常用的功能，引入复杂的第三方框架，提高开发成本和灰度框架本身的学习成本。</p><p><strong>其次，我们来看，如何实现灰度规则热更新。</strong></p><p>规则热更新这样一个功能，并非灰度组件特有的，很多场景下都有类似的需求。在第25、26讲中，讲到性能计数器项目的时候，我们也提到过这个需求。</p><p>灰度规则的热更新实现起来并不难。我们创建一个定时器，每隔固定时间（比如1分钟），从配置文件中，读取灰度规则配置信息，并且解析加载到内存中，替换掉老的灰度规则。需要特别强调的是，更新灰度规则，涉及读取配置、解析、构建等一系列操作，会花费比较长的时间，我们不能因为更新规则，就暂停了灰度服务。所以，在设计和实现灰度规则更新的时候，我们要支持更新和查询并发执行。具体如何来做，我们留在下一节课的实现中详细讲解。</p><h2>重点回顾</h2><p>好了，今天的内容到此就讲完了。我们一块来总结回顾一下，你需要重点掌握的内容。</p><p>今天，我们对比限流框架、幂等框架，讲解了灰度组件的非功能性需求，主要包含易用性、扩展性、灵活性、性能、容错性这样几个方面，并且针对性地解释了对应的设计思路。</p><p>在易用性方面，我们重点讲解了“低侵入、松耦合”的设计思想。限流、幂等因为其跟业务无关，可以做到最大程度跟业务解耦，做到低侵入。但是，我们这里实现的代码层面的灰度，因为跟业务强相关，所以，跟业务代码耦合的比较紧密，比较难做到低侵入。</p><p>在扩展性、灵活性方面，除了像限流框架那样，支持各种格式、存储方式的配置方式之外，灰度组件还希望能支持复杂的灰度规则。对于大部分业务的灰度，我们使用最基本的语法规则（具体值、区间值、比例值）就能满足了。对于极个别复杂的灰度规则，我们借鉴Spring的编程式配置，由业务方编程实现。</p><p>在性能方面，灰度组件没有需要特殊处理的地方。我们只需要把灰度规则组织成快速查找的数据结构，能够支持快速判定某个灰度对象（darkTarget，比如用户ID），是否落在灰度规则设定的区间内。</p><p>在容错性方面，限流框架要高度容错，容忍短暂、小规模的限流失效，但不容忍框架异常导致的接口响应异常。幂等框架正好相反，不容忍幂等功能的失效，一旦出现异常，幂等功能失效，我们的处理原则是让业务也失败。这两种处理思路都可以用在灰度组件对异常的处理中。我个人倾向于采用幂等框架的处理思路。</p><h2>课堂讨论</h2><p>在项目实战这部分中，我们多次讲到“低侵入、松耦合”的设计思路，我们平时使用Logger框架，在业务代码中打印日志，算不算是对业务代码的侵入、耦合？</p><p>欢迎留言和我分享你的想法。如果有收获，也欢迎你把这篇文章分享给你的朋友。</p><h2>精选留言：</h2>
+        <ul>
+        
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            test  2020-06-15 07:29:03
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            Logger需要用户控制打什么日志，在哪里打，算是牺牲了一定耦合度 [2赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Jxin  2020-06-15 13:02:51
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            1.这要看系统运行日志属不属于业务逻辑的一部分。我认为是属于的。毕竟我要的是可追溯的业务代码，而不是只有功能的业务代码。可追溯我认为是业务的一部分。同理还包括主动告警。<br><br>2.所以我认为算不上侵入。至于耦合，log的实现层是可以替换的，所以也没有耦合。 [1赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            ，  2020-06-15 11:27:17
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            我在工作的过程中,遇到的常规业务方法大概是这样的:<br>1.权限校验,权限合法才能继续往下走,不合法就抛异常<br>2.参数校验,参数合法才能继续往下走,不合法就抛异常<br>3.业务处理,处理成功才能继续往下走,不成功就抛异常<br>4.业务附加处理(例如短信通知,记录业务日志),处理完成返回,失败则在第三方打印异常,这个部分一般不会出现异常<br><br>       如果再加上课里面讲到的幂等框架,限流框架等,想要做到零侵入,低耦合,个人感觉并不现实,应该看项目的具体安排,如果时间紧任务重,以服务调用的方式也未尝不可,也就一行代码的事,侵入性并没有想象中的那么夸张,如果时间宽裕,做一个漂亮的切面,也是不错的<br>       课后题:<br>        打印日志算不算对业务代码的侵入,个人认为完全看对&quot;业务代码&quot;范围的定义。比如一次保存稿件的功能,有的人认为只有 save(docuemnt) 这一步才算业务,其他都属于附加功能,但有的人认为权限校验,参数校验,业务处理,业务附加处理全部加起来才算一个完整的业务流程,这时,关键性的业务日志打印&#47;存储其实也属于业务范围内的事情了,权限校验和参数校验也一样。我还是倾向于认为第二种更接近&quot;业务代码&quot;范围的定义。<br>    简而言之,我的观点是 日志打印&#47;存储如果是为了debug,那么则不属于业务范围内,对代码有一定侵入性,如果是为了留档,方便以后的核对等工作,那么则属于业务范围内的事情,对代码没有侵入性。 [1赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            小晏子  2020-06-15 10:11:47
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            如果使用的是log4j，logback等这种基于实现类编程的框架，那么是有侵入，有耦合性的。<br>如果使用的是slf4j这种日志接口框架，那么多业务代码是无侵入的，低耦合的，因为底层具体实现的log框架可以无缝替换为另外一个。 [1赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Heaven  2020-06-15 10:48:42
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            从耦合的角度来看,是在业务代码之中打印的,这是和业务代码耦合在了一起,但是和业务无关,需要删去的时候,不需要修改业务代码,只移除非业务代码,我的角度来看,是不属于对于业务代码的侵入耦合的 
+        </div>
+        
+    </div>
+</li>
+            </ul>
+</div>
+</body>
+</html>

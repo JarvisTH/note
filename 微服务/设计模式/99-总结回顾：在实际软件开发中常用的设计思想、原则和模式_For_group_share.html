@@ -1,0 +1,1048 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>99-总结回顾：在实际软件开发中常用的设计思想、原则和模式</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <style>
+        html {
+            color: #333;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-rendering: optimizelegibility;
+            font-family: Helvetica Neue, PingFang SC, Verdana, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif
+        }
+
+        html.borderbox *,
+        html.borderbox :after,
+        html.borderbox :before {
+            box-sizing: border-box
+        }
+
+        article,
+        aside,
+        blockquote,
+        body,
+        button,
+        code,
+        dd,
+        details,
+        dl,
+        dt,
+        fieldset,
+        figcaption,
+        figure,
+        footer,
+        form,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        header,
+        hr,
+        input,
+        legend,
+        li,
+        menu,
+        nav,
+        ol,
+        p,
+        pre,
+        section,
+        td,
+        textarea,
+        th,
+        ul {
+            margin: 0;
+            padding: 0
+        }
+
+        article,
+        aside,
+        details,
+        figcaption,
+        figure,
+        footer,
+        header,
+        menu,
+        nav,
+        section {
+            display: block
+        }
+
+        audio,
+        canvas,
+        video {
+            display: inline-block
+        }
+
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font: 300 1em/1.8 PingFang SC, Lantinghei SC, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, Helvetica, sans-serif
+        }
+
+        button::-moz-focus-inner,
+        input::-moz-focus-inner {
+            padding: 0;
+            border: 0
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0
+        }
+
+        fieldset,
+        img {
+            border: 0
+        }
+
+        blockquote {
+            position: relative;
+            color: #999;
+            font-weight: 400;
+            border-left: 1px solid #1abc9c;
+            padding-left: 1em;
+            margin: 1em 3em 1em 2em
+        }
+
+        @media only screen and (max-width: 640px) {
+            blockquote {
+                margin: 1em 0
+            }
+        }
+
+        abbr,
+        acronym {
+            border-bottom: 1px dotted;
+            font-variant: normal
+        }
+
+        abbr {
+            cursor: help
+        }
+
+        del {
+            text-decoration: line-through
+        }
+
+        address,
+        caption,
+        cite,
+        code,
+        dfn,
+        em,
+        th,
+        var {
+            font-style: normal;
+            font-weight: 400
+        }
+
+        ol,
+        ul {
+            list-style: none
+        }
+
+        caption,
+        th {
+            text-align: left
+        }
+
+        q:after,
+        q:before {
+            content: ""
+        }
+
+        sub,
+        sup {
+            font-size: 75%;
+            line-height: 0;
+            position: relative
+        }
+
+        :root sub,
+        :root sup {
+            vertical-align: baseline
+        }
+
+        sup {
+            top: -.5em
+        }
+
+        sub {
+            bottom: -.25em
+        }
+
+        a {
+            color: #1abc9c
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        .typo a {
+            border-bottom: 1px solid #1abc9c
+        }
+
+        .typo a:hover {
+            border-bottom-color: #555;
+            color: #555
+        }
+
+        .typo a:hover,
+        a,
+        ins {
+            text-decoration: none
+        }
+
+        .typo-u,
+        u {
+            text-decoration: underline
+        }
+
+        mark {
+            background: #fffdd1;
+            border-bottom: 1px solid #ffedce;
+            padding: 2px;
+            margin: 0 5px
+        }
+
+        code,
+        pre,
+        pre tt {
+            font-family: Courier, Courier New, monospace
+        }
+
+        pre {
+            background: hsla(0, 0%, 97%, .7);
+            border: 1px solid #ddd;
+            padding: 1em 1.5em;
+            display: block;
+            -webkit-overflow-scrolling: touch
+        }
+
+        hr {
+            border: none;
+            border-bottom: 1px solid #cfcfcf;
+            margin-bottom: .8em;
+            height: 10px
+        }
+
+        .typo-small,
+        figcaption,
+        small {
+            font-size: .9em;
+            color: #888
+        }
+
+        b,
+        strong {
+            font-weight: 700;
+            color: #000
+        }
+
+        [draggable] {
+            cursor: move
+        }
+
+        .clearfix:after,
+        .clearfix:before {
+            content: "";
+            display: table
+        }
+
+        .clearfix:after {
+            clear: both
+        }
+
+        .clearfix {
+            zoom: 1
+        }
+
+        .textwrap,
+        .textwrap td,
+        .textwrap th {
+            word-wrap: break-word;
+            word-break: break-all
+        }
+
+        .textwrap-table {
+            table-layout: fixed
+        }
+
+        .serif {
+            font-family: Palatino, Optima, Georgia, serif
+        }
+
+        .typo-dl,
+        .typo-form,
+        .typo-hr,
+        .typo-ol,
+        .typo-p,
+        .typo-pre,
+        .typo-table,
+        .typo-ul,
+        .typo dl,
+        .typo form,
+        .typo hr,
+        .typo ol,
+        .typo p,
+        .typo pre,
+        .typo table,
+        .typo ul,
+        blockquote {
+            margin-bottom: 1rem
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: PingFang SC, Helvetica Neue, Verdana, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;
+            color: #000;
+            line-height: 1.35
+        }
+
+        .typo-h1,
+        .typo-h2,
+        .typo-h3,
+        .typo-h4,
+        .typo-h5,
+        .typo-h6,
+        .typo h1,
+        .typo h2,
+        .typo h3,
+        .typo h4,
+        .typo h5,
+        .typo h6 {
+            margin-top: 1.2em;
+            margin-bottom: .6em;
+            line-height: 1.35
+        }
+
+        .typo-h1,
+        .typo h1 {
+            font-size: 2em
+        }
+
+        .typo-h2,
+        .typo h2 {
+            font-size: 1.8em
+        }
+
+        .typo-h3,
+        .typo h3 {
+            font-size: 1.6em
+        }
+
+        .typo-h4,
+        .typo h4 {
+            font-size: 1.4em
+        }
+
+        .typo-h5,
+        .typo-h6,
+        .typo h5,
+        .typo h6 {
+            font-size: 1.2em
+        }
+
+        .typo-ul,
+        .typo ul {
+            margin-left: 1.3em;
+            list-style: disc
+        }
+
+        .typo-ol,
+        .typo ol {
+            list-style: decimal;
+            margin-left: 1.9em
+        }
+
+        .typo-ol ol,
+        .typo-ol ul,
+        .typo-ul ol,
+        .typo-ul ul,
+        .typo li ol,
+        .typo li ul {
+            margin-bottom: .8em;
+            margin-left: 2em
+        }
+
+        .typo-ol ul,
+        .typo-ul ul,
+        .typo li ul {
+            list-style: circle
+        }
+
+        .typo-table td,
+        .typo-table th,
+        .typo table caption,
+        .typo table td,
+        .typo table th {
+            border: 1px solid #ddd;
+            padding: .5em 1em;
+            color: #666
+        }
+
+        .typo-table th,
+        .typo table th {
+            background: #fbfbfb
+        }
+
+        .typo-table thead th,
+        .typo table thead th {
+            background: hsla(0, 0%, 95%, .7)
+        }
+
+        .typo table caption {
+            border-bottom: none
+        }
+
+        .typo-input,
+        .typo-textarea {
+            -webkit-appearance: none;
+            border-radius: 0
+        }
+
+        .typo-em,
+        .typo em,
+        caption,
+        legend {
+            color: #000;
+            font-weight: inherit
+        }
+
+        .typo-em {
+            position: relative
+        }
+
+        .typo-em:after {
+            position: absolute;
+            top: .65em;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            content: "\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB"
+        }
+
+        .typo img {
+            max-width: 100%
+        }
+
+        .common-content {
+            font-weight: 400;
+            color: #353535;
+            line-height: 1.75rem;
+            white-space: normal;
+            word-break: normal;
+            font-size: 1rem
+        }
+
+        .common-content img {
+            display: block;
+            max-width: 100%;
+            background-color: #eee
+        }
+
+        .common-content audio,
+        .common-content video {
+            width: 100%;
+            background-color: #eee
+        }
+
+        .common-content center,
+        .common-content font {
+            margin-top: 1rem;
+            display: inline-block
+        }
+
+        .common-content center {
+            width: 100%
+        }
+
+        .common-content pre {
+            margin-top: 1rem;
+            padding-left: 0;
+            padding-right: 0;
+            position: relative;
+            overflow: hidden
+        }
+
+        .common-content pre code {
+            font-size: .8rem;
+            font-family: Consolas, Liberation Mono, Menlo, monospace, Courier;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            overflow-x: auto
+        }
+
+        .common-content hr {
+            border: none;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-top: 1px solid #f5f5f5;
+            height: 1px;
+            background: none
+        }
+
+        .common-content b,
+        .common-content h1,
+        .common-content h2,
+        .common-content h3,
+        .common-content h4,
+        .common-content h5,
+        .common-content strong {
+            font-weight: 700
+        }
+
+        .common-content h1,
+        .common-content h2 {
+            font-size: 1.125rem;
+            margin-bottom: .45rem
+        }
+
+        .common-content h3,
+        .common-content h4,
+        .common-content h5 {
+            font-size: 1rem;
+            margin-bottom: .45rem
+        }
+
+        .common-content p {
+            font-weight: 400;
+            color: #353535;
+            margin-top: .15rem
+        }
+
+        .common-content .orange {
+            color: #ff5a05
+        }
+
+        .common-content .reference {
+            font-size: 1rem;
+            color: #888
+        }
+
+        .custom-rich-content h1 {
+            margin-top: 0;
+            font-weight: 400;
+            font-size: 15.25px;
+            border-bottom: 1px solid #eee;
+            line-height: 2.8
+        }
+
+        .custom-rich-content li,
+        .custom-rich-content p {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6
+        }
+
+        table.hljs-ln {
+            margin-bottom: 0;
+            border-spacing: 0;
+            border-collapse: collapse
+        }
+
+        table.hljs-ln,
+        table.hljs-ln tbody,
+        table.hljs-ln td,
+        table.hljs-ln tr {
+            box-sizing: border-box
+        }
+
+        table.hljs-ln td {
+            padding: 0;
+            border: 0
+        }
+
+        table.hljs-ln td.hljs-ln-numbers {
+            min-width: 15px;
+            color: rgba(27, 31, 35, .3);
+            text-align: right;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none
+        }
+
+        table.hljs-ln td.hljs-ln-code,
+        table.hljs-ln td.hljs-ln-numbers {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+            font-size: 12px;
+            line-height: 20px;
+            vertical-align: top
+        }
+
+        table.hljs-ln td.hljs-ln-code {
+            position: relative;
+            padding-right: 10px;
+            padding-left: 10px;
+            overflow: visible;
+            color: #24292e;
+            word-wrap: normal;
+            white-space: pre
+        }
+
+        video::-webkit-media-controls {
+            overflow: hidden !important
+        }
+
+        video::-webkit-media-controls-enclosure {
+            width: calc(100% + 32px);
+            margin-left: auto
+        }
+
+        ._29HP61GA_0 {
+            max-width:800px;
+            margin:0 auto;
+            margin-bottom: 20px;
+            font-weight: 400;
+            color: #353535;
+            line-height: 1.76;
+            white-space: normal;
+            word-break: normal;
+            font-size: 17px;
+            -webkit-transition: background-color .3s ease;
+            transition: background-color .3s ease
+        }
+
+        ._29HP61GA_0 .MathJax_Display {
+            overflow: auto
+        }
+
+        ._29HP61GA_0 .poster {
+            position: fixed;
+            left: -10000px;
+            top: -10000px;
+            overflow: hidden;
+            padding: 1rem;
+            background: #ececec
+        }
+
+        ._29HP61GA_0 .richcontent-pre-copy {
+            font-size: 13px;
+            color: #888;
+            position: absolute;
+            right: 1em;
+            top: .5em;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none
+        }
+
+        ._29HP61GA_0 .richcontent-pre-copy .iconfont {
+            font-size: 12px;
+            margin-right: .2em
+        }
+
+        ._29HP61GA_0 a {
+            color: #fa8919;
+            border-bottom: 1px solid #fa8919
+        }
+
+        ._29HP61GA_0 img {
+            display: block;
+            max-width: 100%;
+            position: relative;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            background-color: #eee;
+            vertical-align: top;
+            border-radius: 0
+        }
+
+        ._29HP61GA_0 audio,
+        ._29HP61GA_0 video {
+            width: 100%;
+            background-color: #eee
+        }
+
+        ._29HP61GA_0 pre {
+            margin-top: 16px;
+            padding: 34px 0 0;
+            margin-bottom: 30px;
+            position: relative;
+            border-radius: 6px;
+            background: rgba(246, 247, 251, .749);
+            border: 0
+        }
+
+        ._29HP61GA_0 pre code {
+            font-size: 12px;
+            font-family: Consolas, Liberation Mono, Menlo, monospace, Courier;
+            display: block;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            margin-left: 16px;
+            margin-right: 16px;
+            overflow-x: scroll
+        }
+
+        ._29HP61GA_0 pre code:after {
+            content: "";
+            height: 30px;
+            width: 100%;
+            display: block
+        }
+
+        ._29HP61GA_0 hr {
+            border: none;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-top: 1px solid #f5f5f5;
+            height: 1px;
+            background: none
+        }
+
+        ._29HP61GA_0 h1,
+        ._29HP61GA_0 h2,
+        ._29HP61GA_0 h3,
+        ._29HP61GA_0 h4,
+        ._29HP61GA_0 h5 {
+            margin-bottom: 20px;
+            margin-top: 0;
+            font-weight: 700
+        }
+
+        ._29HP61GA_0 b,
+        ._29HP61GA_0 strong {
+            font-weight: 700
+        }
+
+        ._29HP61GA_0 h1 {
+            font-size: 21px
+        }
+
+        ._29HP61GA_0 h2 {
+            font-size: 20px
+        }
+
+        ._29HP61GA_0 h3 {
+            font-size: 19px
+        }
+
+        ._29HP61GA_0 h4 {
+            font-size: 18px
+        }
+
+        ._29HP61GA_0 h5 {
+            font-size: 17px
+        }
+
+        ._29HP61GA_0 center,
+        ._29HP61GA_0 p {
+            font-weight: 400;
+            color: #353535;
+            margin-top: 0;
+            margin-bottom: 30px;
+            word-break: break-word
+        }
+
+        ._29HP61GA_0 center {
+            text-align: center
+        }
+
+        ._29HP61GA_0 blockquote {
+            margin-top: 0;
+            margin-bottom: 34px;
+            border-left: 3px solid #e8e8e8;
+            padding-left: 17px;
+            color: #353535
+        }
+
+        ._29HP61GA_0 blockquote p {
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        ._29HP61GA_0 ol,
+        ._29HP61GA_0 ul {
+            margin-bottom: 30px
+        }
+
+        ._29HP61GA_0 ol p,
+        ._29HP61GA_0 ul p {
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        ._29HP61GA_0 ol {
+            list-style: decimal;
+            margin-left: 20px
+        }
+
+        ._29HP61GA_0 ul li {
+            padding-left: 17px;
+            position: relative;
+            margin-bottom: 10px
+        }
+
+        ._29HP61GA_0 ul li:after {
+            content: "";
+            height: 6px;
+            width: 6px;
+            border-radius: 50%;
+            background: #353535;
+            position: absolute;
+            top: 10px;
+            left: 0
+        }
+
+        ._29HP61GA_0 .orange {
+            color: #fa8919
+        }
+
+        ._29HP61GA_0 .reference {
+            color: #888
+        }
+
+        ._29HP61GA_0 .m-right {
+            text-align: right
+        }
+
+        ._29HP61GA_0 .m-center {
+            text-align: center;
+            display: block
+        }
+
+        ._29HP61GA_0 .m-gray {
+            color: #888
+        }
+
+        ._29HP61GA_0 .m-small {
+            font-size: 15px
+        }
+
+        ._29HP61GA_0 table.hljs-ln {
+            margin-bottom: 0;
+            border-spacing: 0;
+            border-collapse: collapse
+        }
+
+        ._29HP61GA_0 table.hljs-ln,
+        ._29HP61GA_0 table.hljs-ln tbody,
+        ._29HP61GA_0 table.hljs-ln td,
+        ._29HP61GA_0 table.hljs-ln tr {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box
+        }
+
+        ._29HP61GA_0 table.hljs-ln td {
+            padding: 0;
+            border: 0
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-numbers {
+            min-width: 15px;
+            font-size: 12px;
+            color: rgba(27, 31, 35, .3);
+            text-align: right;
+            white-space: nowrap;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-code,
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-numbers {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+            line-height: 20px;
+            vertical-align: top
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-code {
+            position: relative;
+            padding-right: 10px;
+            padding-left: 10px;
+            overflow: visible;
+            font-size: 13px;
+            color: #666;
+            word-wrap: normal;
+            white-space: pre
+        }
+
+    </style>
+</head>
+<body>
+<div class="_29HP61GA_0">
+<h1>99-总结回顾：在实际软件开发中常用的设计思想、原则和模式</h1>
+<p>到今天为止，理论部分和实战部分都已经讲完了，整个专栏也接近尾声了。我这里用两节课的时间，带你一块复习一下前面学到的知识点。跟前面的讲解相对应，这两节课分别是针对理论部分和实战部分进行回顾总结。</p><p>今天，我先来带你回顾一下整个专栏的知识体系。我们整个专栏围绕着编写高质量代码展开，涵盖了代码设计的方方面面，主要包括面向对象、设计原则、编码规范、重构技巧、设计模式这五个部分。我们就从这五个方面，带你一块把之前学过的知识点串一遍。</p><p><img src="https://static001.geekbang.org/resource/image/f3/d3/f3262ef8152517d3b11bfc3f2d2b12d3.png" alt=""></p><p>话不多说，让我们正式开始今天的学习吧！</p><h2>面向对象</h2><p>相对于面向过程、函数式编程，面向对象是现在最主流的编程范式。纯面向过程的编程方法，现在已经不多见了，而新的函数式编程，因为它的应用场景比较局限，所以大多作为面向对象编程的一种补充，用在科学计算、大数据处理等特殊领域。</p><p>它提供了丰富的特性，比如封装、抽象、继承、多态，有助于实现复杂的设计思路，是很多设计原则、设计模式等编程实现的基础。</p><p>在面向对象这一部分，我们要重点掌握面向对象的四大特性：封装、抽象、继承、多态，以及面向对象编程与面向过程编程的区别。需要特别注意的是，在平时的面向对象编程开发中，我们要避免编写出面向过程风格的代码。</p><p>除此之外，我们还重点学习了面向对象分析（OOA）、设计（OOD）、编程（OOP）。其中，面向对象分析就是需求分析，面向对象设计是代码层面的设计，输出的设计结果是类。面向对象编程就是将设计的结果翻译成代码的过程。</p><!-- [[[read_end]]] --><p>在专栏中，我们重点讲解了面向对象设计这一部分。我们可以把面向对象设计分为四个环节：划分职责并识别出有哪些类、定义类及其属性和方法、定义类之间的交互关系、组装类并提供执行入口。我们通过几个项目案例，带你实战了一下设计过程，希望你能面对开发需求的时候，不会无从下手，做到有章可循，按照我们的给出的步骤，有条不紊地完成设计。</p><p>在面向对象这一部分，我们还额外讲到了两个设计思想：基于接口而非实现的设计思想、多用组合少用继承的设计思想。这两个设计思想虽然简单，但非常实用，应用它们能让代码更加灵活，更加容易扩展，所以，这两个设计思想几乎贯穿在我们整个专栏的代码实现中。</p><h2>设计原则</h2><p>在专栏的最开始，我们总结了一套评判代码质量的标准，比如可读性、可维护性、可扩展性、复用性等，这是从代码整体质量的角度来评判的。但是，落实到具体的细节，我们往往从是否符合设计原则，来对代码设计进行评判。比如，我们说这段代码的可扩展性比较差，主要原因是违背了开闭原则。这也就是说，相对于可读性、可维护性、可扩展性等代码整体质量的评判标准，设计原则更加具体，能够更加明确地指出代码存在的问题。</p><p>在专栏中，我们重点讲解了一些经典的设计原则，大部分都耳熟能详。它们分别是SOLID原则、DRY原则、KISS原则、YAGNI原则、LOD原则。这些原则的定义描述都很简单，看似都很好理解，但也都比较抽象，比较难落地指导具体的编程。所以，学习的重点是透彻理解它们的设计初衷，掌握它们能解决哪些编程问题，有哪些常用的应用场景。</p><p>SOLID原则并非一个原则。它包含：单一职责原则（SRP）、开闭原则（OCP）、里氏替换原则（LSP）、接口隔离原则（ISP）、依赖倒置原则（DIP）。其中，里氏替换和接口隔离这两个设计原则并不那么常用，稍微了解就可以了。我们重点学习了单一职责、开闭、依赖倒置这三个原则。</p><p>单一职责原则是类职责划分的重要参考依据，是保证代码”高内聚“的有效手段，是面向对象设计前两步（划分职责并识别出有哪些类、定义类及其属性和方法）的主要指导原则。单一职责原则的难点在于，对代码职责是否足够单一的判定。这要根据具体的场景来具体分析。同一个类的设计，在不同的场景下，对职责是否单一的判定，可能是不同的。</p><p>开闭原则是保证代码可扩展性的重要指导原则，是对代码扩展性的具体解读。很多设计模式诞生的初衷都是为了提高代码的扩展性，都是以满足开闭原则为设计目的的。实际上，尽管开闭原则描述为对扩展开放、对修改关闭，但也并不是说杜绝一切代码修改，正确的理解是以最小化修改代价来完成新功能的添加。实际上，在平时的开发中，我们要时刻思考，目前的设计在以后应对新功能扩展的时候，是否能做到不需要大的代码修改（比如调整代码结构）就能完成。</p><p>依赖倒置原则主要用来指导框架层面的设计。高层模块不依赖低层模块，它们共同依赖同一个抽象。深挖一下的话，我们要把它跟控制反转、依赖注入、依赖注入框架做区分。实际上，比依赖倒置原则更加常用的是依赖注入。它用来指导如何编写可测试性代码，换句话说，编写可测试代码的诀窍就是应用依赖注入。</p><p>KISS、YAGNI可以说是两个万金油原则，小到代码、大到架构、产品，很多场景都能套用这两条原则。其中，YAGNI原则表示暂时不需要的就不要做，KISS原则表示要做就要尽量保持简单。跟单一职责原则类似，掌握这两个原则的难点也是在于，对代码是否符合KISS、YAGNI原则的判定。这也需要根据具体的场景来具体分析，在某个时间点、某个场景下，某段代码符合KISS、YAGNI原则，换个时间点、换个场景，可能就不符合了。</p><p>DRY原则主要是提醒你不要写重复的代码，这个倒是不难掌握。LOD原则又叫最小知道原则，不该有直接依赖关系的类之间，不要有依赖；有依赖关系的类之间，尽量只依赖必要的接口。如果说单一职责原则是为了实现“高内聚”， 那这个原则就是为了实现“松耦合”。</p><h2>编码规范</h2><p>编码规范很重要，特别是对于初入职、开发经验不多的程序员，遵从好的编码规范，能让你写出来的代码至少不会太烂。而且，编码规范都比较具体，不像设计原则、模式、思想那样，比较抽象，需要融入很多个人的理解和思考，需要根据具体的场景具体分析，所以，它落地执行起来更加容易。</p><p>虽然我们讲了很多设计思想、原则、模式，但是，大部分代码都不需要用到这么复杂的设计，即便用到，可能也就只是用到极个别的知识点，而且用的也不会很频繁。但是，编码规范就不一样了。编码规范影响到你写的每个类、函数、变量。你编写每行代码的时候都要思考是否符合编码规范。</p><p>除此之外，编程规范主要解决代码的可读性问题。我个人觉得，在编写代码的时候，我们要把可读性放到首位。只有在代码可读性比较好的情况下，我们再去考虑代码的扩展性、灵活性等。一般来说，一个可读性比较好的代码，对它修改、扩展、重构都不是难事，因为这些工作的前提都是先读懂代码。</p><p>不过，专栏中只是总结了一些最常用的、最能明显改善代码质量的编码规范，更进一步的学习你可以参考《重构》《代码大全》《代码整洁之道》等书籍，或者参看你公司内部的编码规范。</p><h2>重构技巧</h2><p>重构作为保持代码质量不腐化的有效手段，利用的就是面向对象、设计原则、设计模式、编码规范这些理论。在重构的过程中，我们用代码质量评判标准来评判代码的整体质量，然后对照设计原则来发现代码存在的具体问题，最后用设计模式或者编码规范对存在的问题进行改善。</p><p>持续重构除了能保证代码质量不腐化之外，还能有效避免过度设计。有了持续重构意识，我们就不会因为担心设计不足而过度设计。我们先按照最简单的思路来设计，然后在后续的开发过程中逐步迭代重构。</p><p>在专栏中，我们还对重构进行了粗略的分类，分为大规模高层次的重构和小规模低层次的重构。不管哪种重构，保证重构不出错，除了熟悉代码之外，还有就是完善的单元测试。</p><h2>设计模式</h2><p>如果说设计原则相当于编程心法，那设计模式相当于具体的招式。设计模式是针对软件开发中经常遇到的一些设计问题，总结出来的一套解决方案或者设计思路。我们用设计原则来评判代码设计哪里有问题，然后再通过具体的设计模式来改善。相对于其他部分来讲，设计模式是最容易学习的，但也是最容易被滥用的，所以，我们在第75讲中还专门讲了如何避免过度设计。</p><p>经典的设计模式有23种，分三种类型：创建型、结构型和行为型。其中，创建型设计模式主要解决“对象的创建”问题，结构型设计模式主要解决“类或对象的组合”问题，行为型设计模式主要解决“类或对象之间的交互”问题。</p><p>虽然专栏中讲到的设计模式有很多种，但常用的并不多，主要有：单例、工厂、建造者、代理、装饰器、适配器、观察者、模板、策略、职责链、迭代器这11种，所以，你只要集中精力，把这11种搞明白就可以了，剩下的那12种稍微了解，混个眼熟，等到真正用到的时候，再深入地去研究学习就可以了。</p><h2>课堂讨论</h2><p>很多人反映学了就忘，对于上面的这些知识点，你记住了百分之多少呢？你是怎么克服学了就忘的问题的呢？</p><p>欢迎留言和我分享你的想法，如果有收获，也欢迎你把这篇文章分享给你的朋友。</p><h2>精选留言：</h2>
+        <ul>
+        
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Jxin  2020-06-19 02:03:54
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            记住大半。比较蠢，我是靠持续重构，眼里不容刺的把自己碰到的每行代码捋顺眼入的门。另外整理知识分享，教会别人，在准备的时候有时能理解得更透测。在解答别人问题时，有时能有眼前一亮新的理解。<br><br>总结，较真死磕，用心分享。 [2赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            努力学习呀  2020-06-19 09:43:42
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            第一遍全部只是看了一遍，马上开始第二遍将所有自己动手实现一遍画脑图，然后再看第三遍重新理解，再隔一段时间看一遍巩固知识点。老师讲的这些东西不看5遍我觉得我消化不透彻，老师讲的真好，赞！ 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            下雨天  2020-06-19 09:38:37
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            重复，重复，再重复！<br><br>每篇重点回顾基本靠背的，这个是底线了，要能说出来！背的过程中如果不会，或者有些关键概念和场景不理解，就再看对应文章，加深印象。<br><br>工作中遇到相关设计模式场景忘了的，也是找对应文章看一遍！ 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            秦歌  2020-06-19 09:26:00
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            感觉挺有收获的，至少写代码的时候先会想想，感觉前面的好多又忘了，还是要复习复习 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            成楠Peter  2020-06-19 09:21:47
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            思考题<br>对于学了就忘，这才是符合人的记忆曲线。有两种方式，一种多复习，参考艾宾浩斯遗忘曲线。另一种，将每一种设计模式用自己熟悉的编程语言实现一遍，通过实践加深记忆。这是我写的一篇文章，https:&#47;&#47;zhuanlan.zhihu.com&#47;p&#47;111553641。 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            悟光  2020-06-19 09:02:51
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            记住了一半吧，但是和原来写的代码做对比发现代码质量真的有非常大的进步。我从争哥专栏一开始就学习了，这期间犯过这么几点错误。<br>1、看完面向对象的时候设计的时候感觉醍醐灌顶，看完文章两遍之后就觉得掌握了，但是在遇到新的需求做需求分析，设计类的时候还是感觉脑容量不够，有点不知所措，无从下手的感觉。后面反思发现是想一开始就做比较完美的设计和类划分，想到的每个方案其实都有很明显的缺陷，这种矛盾的感觉导致烦躁和自我怀疑。<br>2、看完编码规范和重构之后，给变量起名的时候也过分纠结了，某种程度上降低效率。后面反思觉得完全可以用注释来提升可读性，没必要在细节上耗费太多精力。<br>3、看设计模式的时候，某这些瞬间感觉看到新世界，再联想到看过的一些优秀的源码激动的开始鼓掌🤣🤣，心里就起了强烈的实践一下的渴望于是在很小的功能里也用上设计模式😂😂，，导致有同事看我代码的时候有点费劲，尽管也激发了同事学习的兴趣，但是实际上也是一种孤独设计。<br>对第一种采取：先摈弃空想，有思路就动手画线框图，用大白话写文档，有个初出版，然后在反复揣摩争哥的例子，然后再去改，如此三四遍，开始写代码先完成需求。过一周再回头看看专栏，在做设计，在修改代码。在这个过程中很明显感受到自己对设计原则为什么那么定义有更真切直观的感受，并且感受到对业务的熟悉程度也影响设计的好坏，是循序渐进的过程。<br>2、编码规范和设计模式的学习，更多的看优秀框架，对框架的一部分觉得很感兴趣就在草稿纸上抄写主要的逻辑（个人觉得手写更慢，能留给大脑更多删减思考优秀优秀代码的精妙）,并且对同一部分强迫自己看两三遍，因为一遍有一遍的发现新想法和对优秀代码钦佩的体验。这种感觉加深了记忆。<br>总结：1、找到自己想详细了解的部分反复看，并且隔段时间在作总结。2、通过手写加深细节记忆，提升理解，找到学习的动力。3、还是反复看和做总结。 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            海平  2020-06-19 08:31:36
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            专栏一路跟下来，很多设计模式理念对我已经产生潜移默化的影响，感谢老师的辛勤付出！日后自己也还会不断参悟精进，不忘初心：更优雅的解决设计问题 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Jeff.Smile  2020-06-19 08:31:33
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            经验就是每当阅读源码或者看到有地方用到的时候，就立马记录下来，然后自己理解加翻看争哥的对应章节，自己写demo.做笔记。 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            张细敏  2020-06-19 07:44:33
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            老师，后续有课程讲解aop吗？ 
+        </div>
+        <br/>
+<div>
+    <div style="color:#888;font-size:15.25px;font-weight:400;        line-height:1.2">作者回复2020-06-19 08:04:49</div>
+    <div style="color:#353535;font-weight:400;white-space:normal;        word-break:break-all;line-height:1.6">你去我公众号里找找😂 “小争哥”</div>
+</div>
+            
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Jie  2020-06-19 07:19:51
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            专栏领进门，在实践中验证后才能转化成自己的知识和能力。<br>首先，专栏内容看了有个印象，建立索引，可以当工具书来查。有空时多翻翻，比如我看过最多遍的是重构那部分。<br>其次，工作中遇到新项目多去想想怎么架构和设计，遇到遗留系统就去想想怎么优化重构代码，减轻代码的坏味道。<br>最后，设计和重构都要把握个度，不要为了设计而设计，为了重构而重构，在保证交付的基础上提升代码质量。<br><br>PS：结合极客时间其他专栏，把知识体系化，交叉印证和强化。比如争哥的算法之美，欧老师的DDD，耗子叔的左耳听风等。 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            高源  2020-06-19 06:02:40
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            我觉得能记忆深刻还是动手学习，知识量很多的不可能记住，还是希望老师整理讲过的代码对照讲过的课程加深印象学习了 
+        </div>
+        
+    </div>
+</li>
+            </ul>
+</div>
+</body>
+</html>

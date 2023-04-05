@@ -1,0 +1,1428 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>33-理论五：让你最快速地改善代码质量的20条编程规范（下）</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <style>
+        html {
+            color: #333;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+            text-rendering: optimizelegibility;
+            font-family: Helvetica Neue, PingFang SC, Verdana, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif
+        }
+
+        html.borderbox *,
+        html.borderbox :after,
+        html.borderbox :before {
+            box-sizing: border-box
+        }
+
+        article,
+        aside,
+        blockquote,
+        body,
+        button,
+        code,
+        dd,
+        details,
+        dl,
+        dt,
+        fieldset,
+        figcaption,
+        figure,
+        footer,
+        form,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        header,
+        hr,
+        input,
+        legend,
+        li,
+        menu,
+        nav,
+        ol,
+        p,
+        pre,
+        section,
+        td,
+        textarea,
+        th,
+        ul {
+            margin: 0;
+            padding: 0
+        }
+
+        article,
+        aside,
+        details,
+        figcaption,
+        figure,
+        footer,
+        header,
+        menu,
+        nav,
+        section {
+            display: block
+        }
+
+        audio,
+        canvas,
+        video {
+            display: inline-block
+        }
+
+        body,
+        button,
+        input,
+        select,
+        textarea {
+            font: 300 1em/1.8 PingFang SC, Lantinghei SC, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, Helvetica, sans-serif
+        }
+
+        button::-moz-focus-inner,
+        input::-moz-focus-inner {
+            padding: 0;
+            border: 0
+        }
+
+        table {
+            border-collapse: collapse;
+            border-spacing: 0
+        }
+
+        fieldset,
+        img {
+            border: 0
+        }
+
+        blockquote {
+            position: relative;
+            color: #999;
+            font-weight: 400;
+            border-left: 1px solid #1abc9c;
+            padding-left: 1em;
+            margin: 1em 3em 1em 2em
+        }
+
+        @media only screen and (max-width: 640px) {
+            blockquote {
+                margin: 1em 0
+            }
+        }
+
+        abbr,
+        acronym {
+            border-bottom: 1px dotted;
+            font-variant: normal
+        }
+
+        abbr {
+            cursor: help
+        }
+
+        del {
+            text-decoration: line-through
+        }
+
+        address,
+        caption,
+        cite,
+        code,
+        dfn,
+        em,
+        th,
+        var {
+            font-style: normal;
+            font-weight: 400
+        }
+
+        ol,
+        ul {
+            list-style: none
+        }
+
+        caption,
+        th {
+            text-align: left
+        }
+
+        q:after,
+        q:before {
+            content: ""
+        }
+
+        sub,
+        sup {
+            font-size: 75%;
+            line-height: 0;
+            position: relative
+        }
+
+        :root sub,
+        :root sup {
+            vertical-align: baseline
+        }
+
+        sup {
+            top: -.5em
+        }
+
+        sub {
+            bottom: -.25em
+        }
+
+        a {
+            color: #1abc9c
+        }
+
+        a:hover {
+            text-decoration: underline
+        }
+
+        .typo a {
+            border-bottom: 1px solid #1abc9c
+        }
+
+        .typo a:hover {
+            border-bottom-color: #555;
+            color: #555
+        }
+
+        .typo a:hover,
+        a,
+        ins {
+            text-decoration: none
+        }
+
+        .typo-u,
+        u {
+            text-decoration: underline
+        }
+
+        mark {
+            background: #fffdd1;
+            border-bottom: 1px solid #ffedce;
+            padding: 2px;
+            margin: 0 5px
+        }
+
+        code,
+        pre,
+        pre tt {
+            font-family: Courier, Courier New, monospace
+        }
+
+        pre {
+            background: hsla(0, 0%, 97%, .7);
+            border: 1px solid #ddd;
+            padding: 1em 1.5em;
+            display: block;
+            -webkit-overflow-scrolling: touch
+        }
+
+        hr {
+            border: none;
+            border-bottom: 1px solid #cfcfcf;
+            margin-bottom: .8em;
+            height: 10px
+        }
+
+        .typo-small,
+        figcaption,
+        small {
+            font-size: .9em;
+            color: #888
+        }
+
+        b,
+        strong {
+            font-weight: 700;
+            color: #000
+        }
+
+        [draggable] {
+            cursor: move
+        }
+
+        .clearfix:after,
+        .clearfix:before {
+            content: "";
+            display: table
+        }
+
+        .clearfix:after {
+            clear: both
+        }
+
+        .clearfix {
+            zoom: 1
+        }
+
+        .textwrap,
+        .textwrap td,
+        .textwrap th {
+            word-wrap: break-word;
+            word-break: break-all
+        }
+
+        .textwrap-table {
+            table-layout: fixed
+        }
+
+        .serif {
+            font-family: Palatino, Optima, Georgia, serif
+        }
+
+        .typo-dl,
+        .typo-form,
+        .typo-hr,
+        .typo-ol,
+        .typo-p,
+        .typo-pre,
+        .typo-table,
+        .typo-ul,
+        .typo dl,
+        .typo form,
+        .typo hr,
+        .typo ol,
+        .typo p,
+        .typo pre,
+        .typo table,
+        .typo ul,
+        blockquote {
+            margin-bottom: 1rem
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: PingFang SC, Helvetica Neue, Verdana, Microsoft Yahei, Hiragino Sans GB, Microsoft Sans Serif, WenQuanYi Micro Hei, sans-serif;
+            color: #000;
+            line-height: 1.35
+        }
+
+        .typo-h1,
+        .typo-h2,
+        .typo-h3,
+        .typo-h4,
+        .typo-h5,
+        .typo-h6,
+        .typo h1,
+        .typo h2,
+        .typo h3,
+        .typo h4,
+        .typo h5,
+        .typo h6 {
+            margin-top: 1.2em;
+            margin-bottom: .6em;
+            line-height: 1.35
+        }
+
+        .typo-h1,
+        .typo h1 {
+            font-size: 2em
+        }
+
+        .typo-h2,
+        .typo h2 {
+            font-size: 1.8em
+        }
+
+        .typo-h3,
+        .typo h3 {
+            font-size: 1.6em
+        }
+
+        .typo-h4,
+        .typo h4 {
+            font-size: 1.4em
+        }
+
+        .typo-h5,
+        .typo-h6,
+        .typo h5,
+        .typo h6 {
+            font-size: 1.2em
+        }
+
+        .typo-ul,
+        .typo ul {
+            margin-left: 1.3em;
+            list-style: disc
+        }
+
+        .typo-ol,
+        .typo ol {
+            list-style: decimal;
+            margin-left: 1.9em
+        }
+
+        .typo-ol ol,
+        .typo-ol ul,
+        .typo-ul ol,
+        .typo-ul ul,
+        .typo li ol,
+        .typo li ul {
+            margin-bottom: .8em;
+            margin-left: 2em
+        }
+
+        .typo-ol ul,
+        .typo-ul ul,
+        .typo li ul {
+            list-style: circle
+        }
+
+        .typo-table td,
+        .typo-table th,
+        .typo table caption,
+        .typo table td,
+        .typo table th {
+            border: 1px solid #ddd;
+            padding: .5em 1em;
+            color: #666
+        }
+
+        .typo-table th,
+        .typo table th {
+            background: #fbfbfb
+        }
+
+        .typo-table thead th,
+        .typo table thead th {
+            background: hsla(0, 0%, 95%, .7)
+        }
+
+        .typo table caption {
+            border-bottom: none
+        }
+
+        .typo-input,
+        .typo-textarea {
+            -webkit-appearance: none;
+            border-radius: 0
+        }
+
+        .typo-em,
+        .typo em,
+        caption,
+        legend {
+            color: #000;
+            font-weight: inherit
+        }
+
+        .typo-em {
+            position: relative
+        }
+
+        .typo-em:after {
+            position: absolute;
+            top: .65em;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            content: "\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB\30FB"
+        }
+
+        .typo img {
+            max-width: 100%
+        }
+
+        .common-content {
+            font-weight: 400;
+            color: #353535;
+            line-height: 1.75rem;
+            white-space: normal;
+            word-break: normal;
+            font-size: 1rem
+        }
+
+        .common-content img {
+            display: block;
+            max-width: 100%;
+            background-color: #eee
+        }
+
+        .common-content audio,
+        .common-content video {
+            width: 100%;
+            background-color: #eee
+        }
+
+        .common-content center,
+        .common-content font {
+            margin-top: 1rem;
+            display: inline-block
+        }
+
+        .common-content center {
+            width: 100%
+        }
+
+        .common-content pre {
+            margin-top: 1rem;
+            padding-left: 0;
+            padding-right: 0;
+            position: relative;
+            overflow: hidden
+        }
+
+        .common-content pre code {
+            font-size: .8rem;
+            font-family: Consolas, Liberation Mono, Menlo, monospace, Courier;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            overflow-x: auto
+        }
+
+        .common-content hr {
+            border: none;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-top: 1px solid #f5f5f5;
+            height: 1px;
+            background: none
+        }
+
+        .common-content b,
+        .common-content h1,
+        .common-content h2,
+        .common-content h3,
+        .common-content h4,
+        .common-content h5,
+        .common-content strong {
+            font-weight: 700
+        }
+
+        .common-content h1,
+        .common-content h2 {
+            font-size: 1.125rem;
+            margin-bottom: .45rem
+        }
+
+        .common-content h3,
+        .common-content h4,
+        .common-content h5 {
+            font-size: 1rem;
+            margin-bottom: .45rem
+        }
+
+        .common-content p {
+            font-weight: 400;
+            color: #353535;
+            margin-top: .15rem
+        }
+
+        .common-content .orange {
+            color: #ff5a05
+        }
+
+        .common-content .reference {
+            font-size: 1rem;
+            color: #888
+        }
+
+        .custom-rich-content h1 {
+            margin-top: 0;
+            font-weight: 400;
+            font-size: 15.25px;
+            border-bottom: 1px solid #eee;
+            line-height: 2.8
+        }
+
+        .custom-rich-content li,
+        .custom-rich-content p {
+            font-size: 14px;
+            color: #888;
+            line-height: 1.6
+        }
+
+        table.hljs-ln {
+            margin-bottom: 0;
+            border-spacing: 0;
+            border-collapse: collapse
+        }
+
+        table.hljs-ln,
+        table.hljs-ln tbody,
+        table.hljs-ln td,
+        table.hljs-ln tr {
+            box-sizing: border-box
+        }
+
+        table.hljs-ln td {
+            padding: 0;
+            border: 0
+        }
+
+        table.hljs-ln td.hljs-ln-numbers {
+            min-width: 15px;
+            color: rgba(27, 31, 35, .3);
+            text-align: right;
+            white-space: nowrap;
+            cursor: pointer;
+            user-select: none
+        }
+
+        table.hljs-ln td.hljs-ln-code,
+        table.hljs-ln td.hljs-ln-numbers {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+            font-size: 12px;
+            line-height: 20px;
+            vertical-align: top
+        }
+
+        table.hljs-ln td.hljs-ln-code {
+            position: relative;
+            padding-right: 10px;
+            padding-left: 10px;
+            overflow: visible;
+            color: #24292e;
+            word-wrap: normal;
+            white-space: pre
+        }
+
+        video::-webkit-media-controls {
+            overflow: hidden !important
+        }
+
+        video::-webkit-media-controls-enclosure {
+            width: calc(100% + 32px);
+            margin-left: auto
+        }
+
+        ._29HP61GA_0 {
+            max-width:800px;
+            margin:0 auto;
+            margin-bottom: 20px;
+            font-weight: 400;
+            color: #353535;
+            line-height: 1.76;
+            white-space: normal;
+            word-break: normal;
+            font-size: 17px;
+            -webkit-transition: background-color .3s ease;
+            transition: background-color .3s ease
+        }
+
+        ._29HP61GA_0 .MathJax_Display {
+            overflow: auto
+        }
+
+        ._29HP61GA_0 .poster {
+            position: fixed;
+            left: -10000px;
+            top: -10000px;
+            overflow: hidden;
+            padding: 1rem;
+            background: #ececec
+        }
+
+        ._29HP61GA_0 .richcontent-pre-copy {
+            font-size: 13px;
+            color: #888;
+            position: absolute;
+            right: 1em;
+            top: .5em;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none
+        }
+
+        ._29HP61GA_0 .richcontent-pre-copy .iconfont {
+            font-size: 12px;
+            margin-right: .2em
+        }
+
+        ._29HP61GA_0 a {
+            color: #fa8919;
+            border-bottom: 1px solid #fa8919
+        }
+
+        ._29HP61GA_0 img {
+            display: block;
+            max-width: 100%;
+            position: relative;
+            left: 50%;
+            -webkit-transform: translateX(-50%);
+            transform: translateX(-50%);
+            background-color: #eee;
+            vertical-align: top;
+            border-radius: 0
+        }
+
+        ._29HP61GA_0 audio,
+        ._29HP61GA_0 video {
+            width: 100%;
+            background-color: #eee
+        }
+
+        ._29HP61GA_0 pre {
+            margin-top: 16px;
+            padding: 34px 0 0;
+            margin-bottom: 30px;
+            position: relative;
+            border-radius: 6px;
+            background: rgba(246, 247, 251, .749);
+            border: 0
+        }
+
+        ._29HP61GA_0 pre code {
+            font-size: 12px;
+            font-family: Consolas, Liberation Mono, Menlo, monospace, Courier;
+            display: block;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            margin-left: 16px;
+            margin-right: 16px;
+            overflow-x: scroll
+        }
+
+        ._29HP61GA_0 pre code:after {
+            content: "";
+            height: 30px;
+            width: 100%;
+            display: block
+        }
+
+        ._29HP61GA_0 hr {
+            border: none;
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-top: 1px solid #f5f5f5;
+            height: 1px;
+            background: none
+        }
+
+        ._29HP61GA_0 h1,
+        ._29HP61GA_0 h2,
+        ._29HP61GA_0 h3,
+        ._29HP61GA_0 h4,
+        ._29HP61GA_0 h5 {
+            margin-bottom: 20px;
+            margin-top: 0;
+            font-weight: 700
+        }
+
+        ._29HP61GA_0 b,
+        ._29HP61GA_0 strong {
+            font-weight: 700
+        }
+
+        ._29HP61GA_0 h1 {
+            font-size: 21px
+        }
+
+        ._29HP61GA_0 h2 {
+            font-size: 20px
+        }
+
+        ._29HP61GA_0 h3 {
+            font-size: 19px
+        }
+
+        ._29HP61GA_0 h4 {
+            font-size: 18px
+        }
+
+        ._29HP61GA_0 h5 {
+            font-size: 17px
+        }
+
+        ._29HP61GA_0 center,
+        ._29HP61GA_0 p {
+            font-weight: 400;
+            color: #353535;
+            margin-top: 0;
+            margin-bottom: 30px;
+            word-break: break-word
+        }
+
+        ._29HP61GA_0 center {
+            text-align: center
+        }
+
+        ._29HP61GA_0 blockquote {
+            margin-top: 0;
+            margin-bottom: 34px;
+            border-left: 3px solid #e8e8e8;
+            padding-left: 17px;
+            color: #353535
+        }
+
+        ._29HP61GA_0 blockquote p {
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        ._29HP61GA_0 ol,
+        ._29HP61GA_0 ul {
+            margin-bottom: 30px
+        }
+
+        ._29HP61GA_0 ol p,
+        ._29HP61GA_0 ul p {
+            margin-top: 0;
+            margin-bottom: 0
+        }
+
+        ._29HP61GA_0 ol {
+            list-style: decimal;
+            margin-left: 20px
+        }
+
+        ._29HP61GA_0 ul li {
+            padding-left: 17px;
+            position: relative;
+            margin-bottom: 10px
+        }
+
+        ._29HP61GA_0 ul li:after {
+            content: "";
+            height: 6px;
+            width: 6px;
+            border-radius: 50%;
+            background: #353535;
+            position: absolute;
+            top: 10px;
+            left: 0
+        }
+
+        ._29HP61GA_0 .orange {
+            color: #fa8919
+        }
+
+        ._29HP61GA_0 .reference {
+            color: #888
+        }
+
+        ._29HP61GA_0 .m-right {
+            text-align: right
+        }
+
+        ._29HP61GA_0 .m-center {
+            text-align: center;
+            display: block
+        }
+
+        ._29HP61GA_0 .m-gray {
+            color: #888
+        }
+
+        ._29HP61GA_0 .m-small {
+            font-size: 15px
+        }
+
+        ._29HP61GA_0 table.hljs-ln {
+            margin-bottom: 0;
+            border-spacing: 0;
+            border-collapse: collapse
+        }
+
+        ._29HP61GA_0 table.hljs-ln,
+        ._29HP61GA_0 table.hljs-ln tbody,
+        ._29HP61GA_0 table.hljs-ln td,
+        ._29HP61GA_0 table.hljs-ln tr {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box
+        }
+
+        ._29HP61GA_0 table.hljs-ln td {
+            padding: 0;
+            border: 0
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-numbers {
+            min-width: 15px;
+            font-size: 12px;
+            color: rgba(27, 31, 35, .3);
+            text-align: right;
+            white-space: nowrap;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-code,
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-numbers {
+            font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+            line-height: 20px;
+            vertical-align: top
+        }
+
+        ._29HP61GA_0 table.hljs-ln td.hljs-ln-code {
+            position: relative;
+            padding-right: 10px;
+            padding-left: 10px;
+            overflow: visible;
+            font-size: 13px;
+            color: #666;
+            word-wrap: normal;
+            white-space: pre
+        }
+
+    </style>
+</head>
+<body>
+<div class="_29HP61GA_0">
+<h1>33-理论五：让你最快速地改善代码质量的20条编程规范（下）</h1>
+<p>上两节课，我们讲了命名和注释、代码风格，今天我们来讲一些比较实用的编程技巧，帮你切实地提高代码可读性。这部分技巧比较琐碎，也很难罗列全面，我仅仅总结了一些我认为比较关键的，更多的技巧需要你在实践中自己慢慢总结、积累。</p><p>话不多说，让我们正式开始今天的学习吧！</p><h2>1.把代码分割成更小的单元块</h2><p>大部分人阅读代码的习惯都是，先看整体再看细节。所以，我们要有模块化和抽象思维，善于将大块的复杂逻辑提炼成类或者函数，屏蔽掉细节，让阅读代码的人不至于迷失在细节中，这样能极大地提高代码的可读性。不过，只有代码逻辑比较复杂的时候，我们其实才建议提炼类或者函数。毕竟如果提炼出的函数只包含两三行代码，在阅读代码的时候，还得跳过去看一下，这样反倒增加了阅读成本。</p><p>这里我举一个例子来进一步解释一下。代码具体如下所示。重构前，在invest()函数中，最开始的那段关于时间处理的代码，是不是很难看懂？重构之后，我们将这部分逻辑抽象成一个函数，并且命名为isLastDayOfMonth，从名字就能清晰地了解它的功能，判断今天是不是当月的最后一天。这里，我们就是通过将复杂的逻辑代码提炼成函数，大大提高了代码的可读性。</p><pre><code>// 重构前的代码
+public void invest(long userId, long financialProductId) {
+  Calendar calendar = Calendar.getInstance();
+  calendar.setTime(date);
+  calendar.set(Calendar.DATE, (calendar.get(Calendar.DATE) + 1));
+  if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
+    return;
+  }
+  //...
+}
+
+// 重构后的代码：提炼函数之后逻辑更加清晰
+public void invest(long userId, long financialProductId) {
+  if (isLastDayOfMonth(new Date())) {
+    return;
+  }
+  //...
+}
+
+public boolean isLastDayOfMonth(Date date) {
+  Calendar calendar = Calendar.getInstance();
+  calendar.setTime(date);
+  calendar.set(Calendar.DATE, (calendar.get(Calendar.DATE) + 1));
+  if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
+   return true;
+  }
+  return false;
+}
+</code></pre><!-- [[[read_end]]] --><h2>2.避免函数参数过多</h2><p>我个人觉得，函数包含3、4个参数的时候还是能接受的，大于等于5个的时候，我们就觉得参数有点过多了，会影响到代码的可读性，使用起来也不方便。针对参数过多的情况，一般有2种处理方法。</p><ul>
+<li>考虑函数是否职责单一，是否能通过拆分成多个函数的方式来减少参数。示例代码如下所示：</li>
+</ul><pre><code>public void getUser(String username, String telephone, String email);
+
+// 拆分成多个函数
+public void getUserByUsername(String username);
+public void getUserByTelephone(String telephone);
+public void getUserByEmail(String email);
+</code></pre><ul>
+<li>将函数的参数封装成对象。示例代码如下所示：</li>
+</ul><pre><code>public void postBlog(String title, String summary, String keywords, String content, String category, long authorId);
+
+// 将参数封装成对象
+public class Blog {
+  private String title;
+  private String summary;
+  private String keywords;
+  private Strint content;
+  private String category;
+  private long authorId;
+}
+public void postBlog(Blog blog);
+</code></pre><p>除此之外，如果函数是对外暴露的远程接口，将参数封装成对象，还可以提高接口的兼容性。在往接口中添加新的参数的时候，老的远程接口调用者有可能就不需要修改代码来兼容新的接口了。</p><h2>3.勿用函数参数来控制逻辑</h2><p>不要在函数中使用布尔类型的标识参数来控制内部逻辑，true的时候走这块逻辑，false的时候走另一块逻辑。这明显违背了单一职责原则和接口隔离原则。我建议将其拆成两个函数，可读性上也要更好。我举个例子来说明一下。</p><pre><code>public void buyCourse(long userId, long courseId, boolean isVip);
+
+// 将其拆分成两个函数
+public void buyCourse(long userId, long courseId);
+public void buyCourseForVip(long userId, long courseId);
+</code></pre><p>不过，如果函数是private私有函数，影响范围有限，或者拆分之后的两个函数经常同时被调用，我们可以酌情考虑保留标识参数。示例代码如下所示：</p><pre><code>// 拆分成两个函数的调用方式
+boolean isVip = false;
+//...省略其他逻辑...
+if (isVip) {
+  buyCourseForVip(userId, courseId);
+} else {
+  buyCourse(userId, courseId);
+}
+
+// 保留标识参数的调用方式更加简洁
+boolean isVip = false;
+//...省略其他逻辑...
+buyCourse(userId, courseId, isVip);
+</code></pre><p>除了布尔类型作为标识参数来控制逻辑的情况外，还有一种“根据参数是否为null”来控制逻辑的情况。针对这种情况，我们也应该将其拆分成多个函数。拆分之后的函数职责更明确，不容易用错。具体代码示例如下所示：</p><pre><code>public List&lt;Transaction&gt; selectTransactions(Long userId, Date startDate, Date endDate) {
+  if (startDate != null &amp;&amp; endDate != null) {
+    // 查询两个时间区间的transactions
+  }
+  if (startDate != null &amp;&amp; endDate == null) {
+    // 查询startDate之后的所有transactions
+  }
+  if (startDate == null &amp;&amp; endDate != null) {
+    // 查询endDate之前的所有transactions
+  }
+  if (startDate == null &amp;&amp; endDate == null) {
+    // 查询所有的transactions
+  }
+}
+
+// 拆分成多个public函数，更加清晰、易用
+public List&lt;Transaction&gt; selectTransactionsBetween(Long userId, Date startDate, Date endDate) {
+  return selectTransactions(userId, startDate, endDate);
+}
+
+public List&lt;Transaction&gt; selectTransactionsStartWith(Long userId, Date startDate) {
+  return selectTransactions(userId, startDate, null);
+}
+
+public List&lt;Transaction&gt; selectTransactionsEndWith(Long userId, Date endDate) {
+  return selectTransactions(userId, null, endDate);
+}
+
+public List&lt;Transaction&gt; selectAllTransactions(Long userId) {
+  return selectTransactions(userId, null, null);
+}
+
+private List&lt;Transaction&gt; selectTransactions(Long userId, Date startDate, Date endDate) {
+  // ...
+}
+</code></pre><h2>4.函数设计要职责单一</h2><p>我们在前面讲到单一职责原则的时候，针对的是类、模块这样的应用对象。实际上，对于函数的设计来说，更要满足单一职责原则。相对于类和模块，函数的粒度比较小，代码行数少，所以在应用单一职责原则的时候，没有像应用到类或者模块那样模棱两可，能多单一就多单一。</p><p>具体的代码示例如下所示：</p><pre><code>public boolean checkUserIfExisting(String telephone, String username, String email)  { 
+  if (!StringUtils.isBlank(telephone)) {
+    User user = userRepo.selectUserByTelephone(telephone);
+    return user != null;
+  }
+  
+  if (!StringUtils.isBlank(username)) {
+    User user = userRepo.selectUserByUsername(username);
+    return user != null;
+  }
+  
+  if (!StringUtils.isBlank(email)) {
+    User user = userRepo.selectUserByEmail(email);
+    return user != null;
+  }
+  
+  return false;
+}
+
+// 拆分成三个函数
+public boolean checkUserIfExistingByTelephone(String telephone);
+public boolean checkUserIfExistingByUsername(String username);
+public boolean checkUserIfExistingByEmail(String email);
+</code></pre><h2>5.移除过深的嵌套层次</h2><p>代码嵌套层次过深往往是因为if-else、switch-case、for循环过度嵌套导致的。我个人建议，嵌套最好不超过两层，超过两层之后就要思考一下是否可以减少嵌套。过深的嵌套本身理解起来就比较费劲，除此之外，嵌套过深很容易因为代码多次缩进，导致嵌套内部的语句超过一行的长度而折成两行，影响代码的整洁。</p><p>解决嵌套过深的方法也比较成熟，有下面4种常见的思路。</p><ul>
+<li>去掉多余的if或else语句。代码示例如下所示：</li>
+</ul><pre><code>// 示例一
+public double caculateTotalAmount(List&lt;Order&gt; orders) {
+  if (orders == null || orders.isEmpty()) {
+    return 0.0;
+  } else { // 此处的else可以去掉
+    double amount = 0.0;
+    for (Order order : orders) {
+      if (order != null) {
+        amount += (order.getCount() * order.getPrice());
+      }
+    }
+    return amount;
+  }
+}
+
+// 示例二
+public List&lt;String&gt; matchStrings(List&lt;String&gt; strList,String substr) {
+  List&lt;String&gt; matchedStrings = new ArrayList&lt;&gt;();
+  if (strList != null &amp;&amp; substr != null) {
+    for (String str : strList) {
+      if (str != null) { // 跟下面的if语句可以合并在一起
+        if (str.contains(substr)) {
+          matchedStrings.add(str);
+        }
+      }
+    }
+  }
+  return matchedStrings;
+}
+</code></pre><ul>
+<li>使用编程语言提供的continue、break、return关键字，提前退出嵌套。代码示例如下所示：</li>
+</ul><pre><code>// 重构前的代码
+public List&lt;String&gt; matchStrings(List&lt;String&gt; strList,String substr) {
+  List&lt;String&gt; matchedStrings = new ArrayList&lt;&gt;();
+  if (strList != null &amp;&amp; substr != null){ 
+    for (String str : strList) {
+      if (str != null &amp;&amp; str.contains(substr)) {
+        matchedStrings.add(str);
+        // 此处还有10行代码...
+      }
+    }
+  }
+  return matchedStrings;
+}
+
+// 重构后的代码：使用continue提前退出
+public List&lt;String&gt; matchStrings(List&lt;String&gt; strList,String substr) {
+  List&lt;String&gt; matchedStrings = new ArrayList&lt;&gt;();
+  if (strList != null &amp;&amp; substr != null){ 
+    for (String str : strList) {
+      if (str == null || !str.contains(substr)) {
+        continue; 
+      }
+      matchedStrings.add(str);
+      // 此处还有10行代码...
+    }
+  }
+  return matchedStrings;
+}
+</code></pre><ul>
+<li>调整执行顺序来减少嵌套。具体的代码示例如下所示：</li>
+</ul><pre><code>// 重构前的代码
+public List&lt;String&gt; matchStrings(List&lt;String&gt; strList,String substr) {
+  List&lt;String&gt; matchedStrings = new ArrayList&lt;&gt;();
+  if (strList != null &amp;&amp; substr != null) {
+    for (String str : strList) {
+      if (str != null) {
+        if (str.contains(substr)) {
+          matchedStrings.add(str);
+        }
+      }
+    }
+  }
+  return matchedStrings;
+}
+
+// 重构后的代码：先执行判空逻辑，再执行正常逻辑
+public List&lt;String&gt; matchStrings(List&lt;String&gt; strList,String substr) {
+  if (strList == null || substr == null) { //先判空
+    return Collections.emptyList();
+  }
+
+  List&lt;String&gt; matchedStrings = new ArrayList&lt;&gt;();
+  for (String str : strList) {
+    if (str != null) {
+      if (str.contains(substr)) {
+        matchedStrings.add(str);
+      }
+    }
+  }
+  return matchedStrings;
+}
+</code></pre><ul>
+<li>将部分嵌套逻辑封装成函数调用，以此来减少嵌套。具体的代码示例如下所示：</li>
+</ul><pre><code>// 重构前的代码
+public List&lt;String&gt; appendSalts(List&lt;String&gt; passwords) {
+  if (passwords == null || passwords.isEmpty()) {
+    return Collections.emptyList();
+  }
+  
+  List&lt;String&gt; passwordsWithSalt = new ArrayList&lt;&gt;();
+  for (String password : passwords) {
+    if (password == null) {
+      continue;
+    }
+    if (password.length() &lt; 8) {
+      // ...
+    } else {
+      // ...
+    }
+  }
+  return passwordsWithSalt;
+}
+
+// 重构后的代码：将部分逻辑抽成函数
+public List&lt;String&gt; appendSalts(List&lt;String&gt; passwords) {
+  if (passwords == null || passwords.isEmpty()) {
+    return Collections.emptyList();
+  }
+
+  List&lt;String&gt; passwordsWithSalt = new ArrayList&lt;&gt;();
+  for (String password : passwords) {
+    if (password == null) {
+      continue;
+    }
+    passwordsWithSalt.add(appendSalt(password));
+  }
+  return passwordsWithSalt;
+}
+
+private String appendSalt(String password) {
+  String passwordWithSalt = password;
+  if (password.length() &lt; 8) {
+    // ...
+  } else {
+    // ...
+  }
+  return passwordWithSalt;
+}
+</code></pre><p>除此之外，常用的还有通过使用多态来替代if-else、switch-case条件判断的方法。这个思路涉及代码结构的改动，我们会在后面的章节中讲到，这里就暂时不展开说明了。</p><h2>6.学会使用解释性变量</h2><p>常用的用解释性变量来提高代码的可读性的情况有下面2种。</p><ul>
+<li>常量取代魔法数字。示例代码如下所示：</li>
+</ul><pre><code>public double CalculateCircularArea(double radius) {
+  return (3.1415) * radius * radius;
+}
+
+// 常量替代魔法数字
+public static final Double PI = 3.1415;
+public double CalculateCircularArea(double radius) {
+  return PI * radius * radius;
+}
+</code></pre><ul>
+<li>使用解释性变量来解释复杂表达式。示例代码如下所示：</li>
+</ul><pre><code>if (date.after(SUMMER_START) &amp;&amp; date.before(SUMMER_END)) {
+  // ...
+} else {
+  // ...
+}
+
+// 引入解释性变量后逻辑更加清晰
+boolean isSummer = date.after(SUMMER_START)&amp;&amp;date.before(SUMMER_END);
+if (isSummer) {
+  // ...
+} else {
+  // ...
+} 
+</code></pre><h2>重点回顾</h2><p>好了，今天的内容到此就讲完了。除了今天讲的编程技巧，前两节课我们还分别讲解了命名与注释、代码风格。现在，我们一块来回顾复习一下这三节课的重点内容。</p><p><strong>1.关于命名</strong></p><ul>
+<li>命名的关键是能准确达意。对于不同作用域的命名，我们可以适当地选择不同的长度。</li>
+<li>我们可以借助类的信息来简化属性、函数的命名，利用函数的信息来简化函数参数的命名。</li>
+<li>命名要可读、可搜索。不要使用生僻的、不好读的英文单词来命名。命名要符合项目的统一规范，也不要用些反直觉的命名。</li>
+<li>接口有两种命名方式：一种是在接口中带前缀“I”；另一种是在接口的实现类中带后缀“Impl”。对于抽象类的命名，也有两种方式，一种是带上前缀“Abstract”，一种是不带前缀。这两种命名方式都可以，关键是要在项目中统一。</li>
+</ul><p><strong>2.关于注释</strong></p><ul>
+<li>注释的内容主要包含这样三个方面：做什么、为什么、怎么做。对于一些复杂的类和接口，我们可能还需要写明“如何用”。</li>
+<li>类和函数一定要写注释，而且要写得尽可能全面详细。函数内部的注释要相对少一些，一般都是靠好的命名、提炼函数、解释性变量、总结性注释来提高代码可读性。</li>
+</ul><p><strong>3.关于代码风格</strong></p><ul>
+<li>函数、类多大才合适？函数的代码行数不要超过一屏幕的大小，比如50行。类的大小限制比较难确定。</li>
+<li>一行代码多长最合适？最好不要超过IDE的显示宽度。当然，也不能太小，否则会导致很多稍微长点的语句被折成两行，也会影响到代码的整洁，不利于阅读。</li>
+<li>善用空行分割单元块。对于比较长的函数，为了让逻辑更加清晰，可以使用空行来分割各个代码块。</li>
+<li>四格缩进还是两格缩进？我个人比较推荐使用两格缩进，这样可以节省空间，尤其是在代码嵌套层次比较深的情况下。不管是用两格缩进还是四格缩进，一定不要用tab键缩进。</li>
+<li>大括号是否要另起一行？将大括号放到跟上一条语句同一行，可以节省代码行数。但是将大括号另起新的一行的方式，左右括号可以垂直对齐，哪些代码属于哪一个代码块，更加一目了然。</li>
+<li>类中成员怎么排列？在Google Java编程规范中，依赖类按照字母序从小到大排列。类中先写成员变量后写函数。成员变量之间或函数之间，先写静态成员变量或函数，后写普通变量或函数，并且按照作用域大小依次排列。</li>
+</ul><p><strong>4.关于编码技巧</strong></p><ul>
+<li>将复杂的逻辑提炼拆分成函数和类。</li>
+<li>通过拆分成多个函数或将参数封装为对象的方式，来处理参数过多的情况。</li>
+<li>函数中不要使用参数来做代码执行逻辑的控制。</li>
+<li>函数设计要职责单一。</li>
+<li>移除过深的嵌套层次，方法包括：去掉多余的if或else语句，使用continue、break、return关键字提前退出嵌套，调整执行顺序来减少嵌套，将部分嵌套逻辑抽象成函数。</li>
+<li>用字面常量取代魔法数或者用解释性变量来解释复杂表达式，以此提高代码可读性。</li>
+</ul><p><strong>5.统一编码规范</strong></p><p>除了这三节讲到的比较细节的知识点之外，最后，还有一条非常重要的，那就是，项目、团队，甚至公司，一定要制定统一的编码规范，并且通过Code Review督促执行，这对提高代码质量有立竿见影的效果。</p><h2>课堂讨论</h2><p>到此为止，我们整个20条编码规范就讲完了。不知道你掌握了多少呢？除了今天我提到的这些，还有哪些其他的编程技巧，可以明显改善代码的可读性？</p><p>试着在留言区总结罗列一下，和同学一起交流和分享。如果有收获，也欢迎你把这篇文章分享给你的朋友。</p><h2>精选留言：</h2>
+        <ul>
+        
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            黄林晴  2020-01-17 00:04:41
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            打卡<br>明天最后一天上班<br>就放假了 [8赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            linlong  2020-01-17 00:44:18
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            一般大公司都有自己的编程规范，但执行的效果取决于commiter，而最终还是项目交付进度决定的。 [3赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            青青子衿  2020-01-17 09:41:09
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            个人以为还有善用和合理运用各个编程语言提供的语法糖和语言特性。比如Java开发，工作中有的老程序员不喜欢不适应lambda表达式，实际上合理恰当的使用lambda表达式可以让代码简洁明了 [1赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            失火的夏天  2020-01-17 08:48:04
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            for里面有时候会出现下标0的特殊判断，这个时候就把0下标单独拉出去玩，for从下标1开始。<br><br>我发现我的代码风格居然和争哥有点像，我仿佛在膨胀😁 [1赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            再见孙悟空  2020-01-17 08:23:52
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            不要在函数中使用布尔类型的标识参数来控制内部逻辑，true 的时候走这块逻辑，false 的时候走另一块逻辑。这明显违背了单一职责原则和接口隔离原则。我建议将其拆成两个函数，可读性上也要更好。这个深有感触 [1赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            刘大明  2020-01-17 08:21:45
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            1.命名长度问题<br>2.利用上下文简化命名<br>3.命名要可读，可搜索<br>4.如何命名接口和抽象类<br>5.注释应该怎么写<br>6.注释是不是越多越好<br>7.类和函数多大才合适<br>8.一行代码多长才合适<br>9.善于用空行分隔符<br>10.缩进是两格还是四格<br>11.大括号是否需要另起一行<br>12.类中成员的排列顺序<br>13.代码应该分割成更小的单元块<br>14.函数参数不要过多<br>15.不要用函数参数来控制逻辑<br>16.函数设计要职责单一<br>17.移除过深的嵌套<br>18.学会使用解释性变量<br>19.<br>20.统一编码规范<br>这些都是开发过程中，让代码更好的一些编码规范<br>我自己在项目开发过程中也会时刻注意是否符合规范。<br>自己在项目中还遇到很多人提交代码不写注释，<br>因为重构很多注释掉的代码不删除<br>重复代码不提取公共类<br>临时代码随意修改，随意提交线上等等很多代码混乱问题。<br>从自身做起，让代码更加整洁，提交的代码尽量减少代码的坏味道。 [1赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            程斌  2020-01-17 08:20:53
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            作为一名phper，这里有很多话想说，但是最后汇成一句话，没有什么参数不是一个数组不能解决的。解决函数嵌套那块，挺实用的。 [1赞]
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            William  2020-01-17 10:25:52
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            函数中大量代码逻辑相同，我会选择使用标识来区分逻辑. 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            斜杠ing...  2020-01-17 09:18:06
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            代码整洁之道这本书很值得看看啊 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Jackey  2020-01-17 09:17:14
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            关键在于reviewer吧，不要放过不好的代码 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Jeff.Smile  2020-01-17 09:16:00
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            打卡，今天天气突然变冷了，女朋友公司年会不让吃早餐，还得按时过去，但是过去的距离多了一倍！唉！我要好好学习，找个好公司！ 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            小晏子  2020-01-17 09:02:24
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            老师讲的有理有据，赞！暂时想不出其他的技巧，但是有些推荐的做法，一个是避免使用奇技淫巧show技能，因为别人可能看不懂，比如非要使用meta programming；另一个是使用相关语言的通用做法，比如python编程就使用pythonic的做法，java编程就是java推荐的做法。 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            墨雨  2020-01-17 08:37:23
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            总的来说，规范不是教条，其起到的是指引作用规范作用。最重要的还是要在对的时间对的地方写对的代码，大家加油 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            安静的boy  2020-01-17 08:26:50
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            对于第四点，函数的职业要统一，我是认同的。但是列举的例子，我个人认为判断的逻辑并不是很复杂，将所有判断逻辑放在一块写也是合理的，阅读起来也更方便些。如果逻辑很复杂，代码很多，封装起来更好点。 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Kang  2020-01-17 08:13:36
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            打卡 
+        </div>
+        
+    </div>
+</li>
+            
+<br/>
+
+<li>
+    <div>
+        <div style="color: #888;font-size:15.25px;font-weight:400;            line-height:1.2">
+            Chen  2020-01-17 07:40:05
+        </div>
+        <div style="color:#353535;font-weight:400;white-space:normal;            word-break:break-all;line-height:1.6">
+            函数中不要使用参数来做代码执行逻辑的控制。我之前写代码从来没关注到这点，学习了 
+        </div>
+        
+    </div>
+</li>
+            </ul>
+</div>
+</body>
+</html>
